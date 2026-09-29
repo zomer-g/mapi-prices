@@ -137,7 +137,13 @@ td.r{text-align:left}
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
 .seg button{font:inherit;font-size:13px;border:0;background:var(--surface);color:var(--muted);padding:5px 14px;cursor:pointer}
 .seg button[aria-pressed="true"]{background:var(--accent-soft);color:var(--ink);font-weight:600}
-.layout{display:grid;grid-template-columns:minmax(0,1fr) 420px;gap:14px;align-items:start}
+.rowbtn{font:inherit;color:inherit;background:none;border:0;padding:0;text-align:start;cursor:pointer;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}
+.rowbtn:hover{text-decoration-color:var(--accent)}
+.pdetail{display:grid;gap:14px;padding:14px 6px 18px;max-width:880px;cursor:default}
+.pdetail h2{font-size:19px}
+tr.detailrow>td{background:var(--surface2);border-bottom:2px solid var(--accent)}
+tbody tr.detailrow{cursor:default}
+tbody tr.detailrow:hover{background:var(--surface2)}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;position:sticky;top:60px;max-height:calc(100vh - 80px);overflow:auto;display:grid;gap:14px;box-shadow:var(--shadow)}
 .panel .empty{color:var(--muted)}
 .kv{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
@@ -179,8 +185,6 @@ td.r{text-align:left}
 .years .up{color:var(--s-both)} .years .down{color:var(--s-none)}
 @media (max-width:640px){.years{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:900px){
-  .layout{grid-template-columns:1fr}
-  .panel{position:static;max-height:none}
   .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
   .grid2{grid-template-columns:1fr}
   .hidden-sm{display:none}
@@ -254,7 +258,6 @@ td.r{text-align:left}
   <button role="tab" data-tab="pricelist">מחירון</button>
   <button role="tab" data-tab="docs">מסמכי מקור וחיפוש</button>
   <button role="tab" data-tab="protocols">פרוטוקולים</button>
-  <button role="tab" data-tab="hourly">תעריף שעה ותקנות</button>
   <button role="tab" data-tab="monthly">הכנסות לאורך זמן</button>
 </div></nav>
 
@@ -274,12 +277,9 @@ td.r{text-align:left}
   <div class="controls" id="kindChips"></div>
   <div class="controls" id="statusChips"></div>
   <div class="count" id="pcount" role="status" aria-live="polite" style="margin-bottom:8px"></div>
-  <div class="layout">
-    <div class="tablebox"><table>
+  <div class="tablebox"><table>
       <thead><tr><th>מק"ט</th><th>מוצר</th><th class="hidden-sm">קטגוריה</th><th>סוג</th><th>מקור מחיר</th><th>מכירות</th><th>סה"כ ₪</th><th class="hidden-sm">מחיר שכיח</th></tr></thead>
       <tbody id="ptable"></tbody></table></div>
-    <aside class="panel" id="detail" aria-live="polite" tabindex="0" aria-label="פרטי המוצר שנבחר"><div class="empty">בחרו מוצר בטבלה כדי לראות את התפלגות המחירים שלו לפי שנה ואת המסמכים שמקושרים אליו.</div></aside>
-  </div>
 </section>
 
 <section data-pane="committee" hidden>
@@ -334,27 +334,6 @@ td.r{text-align:left}
   <div class="tablebox"><table>
     <thead><tr><th>תאריך</th><th>מסמך</th><th>הערה</th><th>גודל</th><th>החלטות מקושרות</th><th></th></tr></thead>
     <tbody id="dtbody"></tbody></table></div>
-</section>
-
-<section data-pane="hourly" hidden>
-  <div class="card" style="display:grid;gap:10px">
-    <h2>שעת עבודה: התעריף שנגבה מול התעריף בתקנות</h2>
-    <p class="muted" style="margin:0">לכל חודש: התעריף לשעה שהכי הרבה שורות מכירה הן כפולה (בחצאי שעה) שלו, מול התעריף שבתקנות המדידות (אגרות), התשל"ז-1977 באותו חודש. גודל הנקודה = מספר השורות.</p>
-    <div style="overflow-x:auto"><svg class="chart" id="hchart" viewBox="0 0 960 320" role="img" aria-label="תעריף שעה חודשי"></svg></div>
-    <div class="legend"><span><i class="sw" style="background:var(--s-reg)"></i>תעריף בתקנות</span><span><i class="sw" style="background:var(--accent);border-radius:50%"></i>מק"ט 8004037 (התעריף שזוהה)</span><span><i class="sw" style="background:var(--s-pr);border-radius:50%"></i>מק"ט 8011150 (מ-9/2024)</span></div>
-  </div>
-  <div class="card" style="margin-top:14px;display:grid;gap:8px">
-    <h2 style="margin:0">הפער בכסף: כמה פחות נגבה מהקבוע בתקנות</h2>
-    <p style="margin:0">בכל פעם שהתעריף בתקנות עלה, המשיכו לגבות לפי התעריף הקודם. כך נגבו בסך הכול <b>2,863,660 ₪ פחות</b> מהקבוע בתקנות, רובם (2.80 מיליון) אחרי תיקון 1.9.2024. הלקוחות שילמו פחות מהמותר; מי שהפסיד הוא הקופה הציבורית. לא נמצאה אף שורה שבה נגבה יותר מהקבוע בתקנות.</p>
-    <div class="tablebox"><table id="hgap"></table></div>
-    <p class="muted" style="margin:0;font-size:12.5px">"היה צריך לגבות" = אותו מספר חצאי שעות, לפי התעריף שבתוקף בחודש המכירה. ייתכן שחלק מהעבודות הוזמנו לפני מועד השינוי, ולכן הסכום הוא גבול עליון.</p>
-  </div>
-  <div class="grid2" style="margin-top:14px">
-    <div class="card"><h3>תקנות המדידות (אגרות), התשל"ז-1977, תקנה 2</h3><div class="tablebox" style="border:0"><table id="reg77"></table></div>
-      <p class="muted" style="font-size:12.5px">אגרה "לכל שעת עבודה של העובד הנותן את השירות או לחלק משעת עבודה". הסכומים מתוך ההודעות ברשומות.</p></div>
-    <div class="card"><h3>תקנות המודדים (מקצוע המדידה), התשמ"ב-1982, תקנה 26(ג)</h3><div class="tablebox" style="border:0"><table id="reg82"></table></div>
-      <p class="muted" style="font-size:12.5px">אגרת בחינת מודד. התקנות שבקישור מנבו (מדידות ומיפוי, 2016) קובעות נהלים בלבד ואינן קובעות סכומים.</p></div>
-  </div>
 </section>
 
 <section data-pane="monthly" hidden>
@@ -471,7 +450,7 @@ function showTab(t,focus){
   tabs.forEach(b=>{const on=b.dataset.tab===t;b.setAttribute('aria-selected',on);b.tabIndex=on?0:-1;if(on&&focus)b.focus()});
   document.querySelectorAll('[data-pane]').forEach(p=>p.hidden=p.dataset.pane!==t);
   try{history.replaceState(null,'','#'+t)}catch(e){}
-  if(t==='hourly')drawHourly(); if(t==='monthly')drawMonthly();
+  if(t==='monthly')drawMonthly();
 }
 tabs.forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
 document.getElementById('tabs').addEventListener('keydown',e=>{const i=tabs.indexOf(document.activeElement);if(i<0)return;
@@ -510,13 +489,15 @@ function renderProducts(){
   let rows=P.filter(p=>(!status.size||status.has(p.s))&&(!kinds.size||kinds.has(p.k))&&(!cc||p.c===cc)&&(!qq||p.d.includes(qq)||String(p.m).includes(qq)));
   rows.sort(so==='d'?(a,b)=>a.d.localeCompare(b.d,'he'):(a,b)=>b[so]-a[so]);
   const tot=rows.reduce((a,p)=>a+p.t,0);
+  const keepOpen=selected;
   document.getElementById('pcount').textContent=`${rows.length} מק"טים · ${nf0.format(tot)} ₪ · ${nf0.format(rows.reduce((a,p)=>a+p.n,0))} שורות מכירה`;
-  document.getElementById('ptable').innerHTML=rows.map(p=>`<tr data-m="${p.m}" class="${p.m===selected?'sel':''}" tabindex="0">
-    <td class="num">${p.m}</td><td>${esc(p.d)}</td><td class="hidden-sm muted">${esc(p.c)}</td><td>${kpill(p.k)}</td><td>${pill(p.s)}</td>
+  document.getElementById('ptable').innerHTML=rows.map(p=>`<tr data-m="${p.m}">
+    <td class="num">${p.m}</td><td><button type="button" class="rowbtn" aria-expanded="false" aria-controls="detail">${esc(p.d)}</button></td><td class="hidden-sm muted">${esc(p.c)}</td><td>${kpill(p.k)}</td><td>${pill(p.s)}</td>
     <td class="num">${nf0.format(p.n)}</td><td class="num">${nf0.format(p.t)}</td><td class="num hidden-sm">${fm(p.mo)}</td></tr>`).join('');
+  if(keepOpen&&document.querySelector(`#ptable tr[data-m="${keepOpen}"]`))selectProduct(keepOpen,true);
 }
-document.getElementById('ptable').addEventListener('click',e=>{const tr=e.target.closest('tr');if(tr)selectProduct(+tr.dataset.m)});
-document.getElementById('ptable').addEventListener('keydown',e=>{if(e.key==='Enter'){const tr=e.target.closest('tr');if(tr)selectProduct(+tr.dataset.m)}});
+document.getElementById('ptable').addEventListener('click',e=>{if(e.target.closest('a,.detailrow')||(e.target.closest('button')&&!e.target.closest('.rowbtn')))return;const tr=e.target.closest('tr[data-m]');if(tr)selectProduct(+tr.dataset.m)});
+document.getElementById('ptable').addEventListener('keydown',e=>{if(e.key!=='Enter'&&e.key!==' ')return;const tr=e.target.closest('tr[data-m]');if(tr&&e.target===tr){e.preventDefault();selectProduct(+tr.dataset.m)}});
 [q,cat,sort].forEach(el=>el.addEventListener('input',renderProducts));
 
 function linkedPrices(p){
@@ -526,9 +507,16 @@ function linkedPrices(p){
   return [...s].filter(v=>v>0);
 }
 function isHit(v,prices){return prices.some(c=>{const k=v/c;return Math.abs(k-Math.round(k))<0.005&&Math.round(k)>=1&&Math.round(k)<=200})}
-function selectProduct(m){
-  selected=m; const p=P.find(x=>x.m===m); if(!p)return;
-  document.querySelectorAll('#ptable tr').forEach(tr=>tr.classList.toggle('sel',+tr.dataset.m===m));
+function closeDetail(){document.querySelectorAll('#ptable tr.detailrow').forEach(r=>r.remove());
+  document.querySelectorAll('#ptable tr[data-m]').forEach(r=>{r.classList.remove('sel');const b=r.querySelector('.rowbtn');if(b)b.setAttribute('aria-expanded','false')});}
+function selectProduct(m,forceOpen){
+  const open=document.querySelector('#ptable tr.detailrow');
+  if(open&&selected===m&&!forceOpen){closeDetail();selected=null;return}
+  closeDetail(); selected=m; const p=P.find(x=>x.m===m); if(!p)return;
+  const row=document.querySelector(`#ptable tr[data-m="${m}"]`); if(!row)return;
+  row.classList.add('sel'); const rb=row.querySelector('.rowbtn'); if(rb)rb.setAttribute('aria-expanded','true');
+  const dr=document.createElement('tr'); dr.className='detailrow';
+  dr.innerHTML='<td colspan="8"><div class="pdetail" id="detail" tabindex="-1" aria-label="פרטי המוצר"></div></td>'; row.after(dr);
   const prices=linkedPrices(p);
   const yrs=Object.keys(p.dist);
   const distHTML=yrs.map(y=>{const rows=p.dist[y];const mx=Math.max(...rows.map(r=>r[1]));
@@ -553,7 +541,6 @@ function selectProduct(m){
     ${p.note?`<div class="note"><b>הערה:</b> ${esc(p.note)}</div>`:''}
     <div style="display:grid;gap:8px"><h3>מסמכים מקושרים</h3>${links.length?links.join(''):'<div class="muted">לא נמצא מחירון, פרוטוקול או תקנה שמתייחסים למוצר הזה.</div>'}</div>
     <div style="display:grid;gap:12px"><h3>סכומי שורות לפי שנה <span class="muted" style="font-weight:400">(ירוק = שווה למחיר מקושר או לכפולה שלו)</span></h3>${distHTML}</div>`;
-  if(window.innerWidth<900)document.getElementById('detail').scrollIntoView({behavior:SMOOTH});
 }
 
 // ---------- committee ----------
@@ -682,45 +669,9 @@ function renderPR(){
 rq.addEventListener('input',renderPR); rnone.onclick=()=>{rnone.setAttribute('aria-pressed',rnone.getAttribute('aria-pressed')!=='true');renderPR()};
 
 document.addEventListener('click',e=>{if(e.target.closest('a'))return;const b=e.target.closest('[data-go]');if(!b)return;
-  status=new Set();kinds=new Set();q.value='';cat.value='';showTab('products');renderProducts();selectProduct(+b.dataset.go);
-  const tr=document.querySelector(`#ptable tr[data-m="${b.dataset.go}"]`); if(tr)tr.scrollIntoView({block:'center'});});
+  status=new Set();kinds=new Set();q.value='';cat.value='';showTab('products');renderProducts();selectProduct(+b.dataset.go,true);
+  const tr=document.querySelector(`#ptable tr[data-m="${b.dataset.go}"]`); if(tr){tr.scrollIntoView({block:'start',behavior:SMOOTH});const rb=tr.querySelector('.rowbtn');if(rb)rb.focus({preventScroll:true})}});
 
-// ---------- hourly chart ----------
-const SVGNS='http://www.w3.org/2000/svg';
-function drawHourly(){
-  const svg=document.getElementById('hchart'); if(svg.dataset.done)return; svg.dataset.done=1;
-  const W=960,H=320,m={l:56,r:20,t:30,b:40};
-  const months=[];for(let y=2022;y<=2024;y++)for(let k=1;k<=12;k++)months.push(`${y}-${String(k).padStart(2,'0')}`);
-  // RTL time axis: earliest on the right
-  const x=i=>W-m.r-(i+0.5)*(W-m.l-m.r)/months.length;
-  const y=v=>H-m.b-(v-80)/(260-80)*(H-m.t-m.b);
-  let s='';
-  [100,150,200,250].forEach(v=>{s+=`<line x1="${m.l}" x2="${W-m.r}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${m.l-8}" y="${y(v)+4}" text-anchor="end">${v}</text>`});
-  months.forEach((mo,i)=>{if(mo.endsWith('-01')||mo.endsWith('-07'))s+=`<text x="${x(i)}" y="${H-m.b+18}" text-anchor="middle">${mo.slice(5)}/${mo.slice(2,4)}</text>`});
-  // regulated step line
-  const regAt=mo=>{const T=[['2019-04',96.24],['2022-10',103.28],['2023-04',104],['2023-10',107],['2024-09',243]];let v;T.forEach(([d,r])=>{if(d<=mo)v=r});return v};
-  let path='';months.forEach((mo,i)=>{const xl=x(i)+(W-m.l-m.r)/months.length/2, xr=x(i)-(W-m.l-m.r)/months.length/2, yy=y(regAt(mo));path+=(i?'L':'M')+xl+','+yy+'L'+xr+','+yy});
-  s+=`<path d="${path}" fill="none" stroke="var(--s-reg)" stroke-width="2.5"/>`;
-  DATA.H.forEach(h=>{const i=months.indexOf(h.ym); if(i<0)return; const r=3+Math.sqrt(h.n)/2.2;
-    const col=h.mat===8004037?'var(--accent)':'var(--s-pr)';
-    s+=`<circle cx="${x(i)}" cy="${y(h.rate)}" r="${r}" fill="${col}" fill-opacity=".75" stroke="var(--surface)" stroke-width="1"><title>${h.ym} · מק"ט ${h.mat}\nתעריף שזוהה: ${h.rate} (${Math.round(h.fit*100)}% מהשורות)\nבתקנות: ${h.reg}\n${h.n} שורות · ${nf0.format(h.sum)} ₪</title></circle>`});
-  const i9=months.indexOf('2024-09');
-  s+=`<text class="lbl" x="${x(months.indexOf('2024-04'))}" y="${y(243)+20}" text-anchor="middle" style="fill:var(--s-reg)">243 מ-1.9.2024</text>`;
-  s+=`<text class="lbl" x="${x(months.indexOf('2024-11'))}" y="${y(107)+26}" text-anchor="middle" style="fill:var(--accent)">371 שורות עדיין ב-107</text>`;
-  s+=`<text class="lbl" x="${m.l-8}" y="14" text-anchor="end">₪ לשעה</text>`;
-  svg.innerHTML=s;
-}
-function regTables(){
-  const HG=DATA.HG||[]; const tt=k=>HG.reduce((a,r)=>a+r[k],0);
-  document.getElementById('hgap').innerHTML='<thead><tr><th>שינוי התעריף</th><th>שורות שחויבו בתעריף הקודם</th><th>נגבה ₪</th><th>היה צריך לגבות ₪</th><th>פער ₪</th></tr></thead><tbody>'+
-    HG.map(r=>`<tr style="cursor:default"><td>${esc(r.l)}</td><td class="num">${r.n}</td><td class="num">${nf0.format(r.c)}</td><td class="num">${nf0.format(r.w)}</td><td class="num"><span class="gap-under">−${money(r.d)}</span></td></tr>`).join('')+
-    `<tr style="cursor:default;font-weight:600"><td>סה"כ</td><td class="num">${tt('n')}</td><td class="num">${nf0.format(tt('c'))}</td><td class="num">${nf0.format(tt('w'))}</td><td class="num"><span class="gap-under">−${money(tt('d'))}</span></td></tr></tbody>`;
-  const t77=[['1.4.2019',96.24,'ק"ת התשע"ט עמ\' 3583'],['1.10.2022',103.28,'ק"ת התשפ"ב עמ\' 4107'],['1.4.2023',104,'ק"ת התשפ"ג עמ\' 1126'],['1.10.2023',107,'ק"ת התשפ"ג עמ\' 2478'],['1.9.2024',243,'תיקון התשפ"ד, ק"ת עמ\' 3396']];
-  const t82=[['1.1.2019',103,'הודעה תשע"ט-2018'],['1.1.2023',111,'הודעה תשפ"ג-2022'],['1.1.2025',119,'הודעה תשפ"ה-2024']];
-  const tb=(rows,h)=>`<thead><tr><th>בתוקף מ-</th><th>${h}</th><th>מקור</th></tr></thead><tbody>`+rows.map(r=>`<tr style="cursor:default"><td class="num">${r[0]}</td><td class="num">${fm(r[1])}</td><td class="muted">${r[2]}</td></tr>`).join('')+'</tbody>';
-  document.getElementById('reg77').innerHTML=tb(t77,'₪ לשעה');
-  document.getElementById('reg82').innerHTML=tb(t82,'₪ לבחינה');
-}
 // ---------- monthly chart ----------
 let view='Y';
 function drawMonthly(){
@@ -773,23 +724,22 @@ document.getElementById('vM').onclick=()=>setView('M');
 
 // ---------- findings ----------
 const F=[
- ['מחוץ לתקנות, לרוב ההכנסות אין מחיר שאושר בוועדת המחירים','20.6 מיליון ₪ (47%) נגבו לפי תעריפים שקבועים בתקנות, ולהם לא נדרשת החלטה של הוועדה. מתוך 23.4 מיליון הנותרים, מחיר מפורש שהוועדה אישרה נמצא ל-65 מק"טים בלבד (4.4 מיליון, 19%). ל-49 מק"טים (4.3 מיליון, 18%) הוועדה החליטה אבל טבלת המחירים לא נמסרה, ול-25 (1.6 מיליון, 7%) יש רק מחיר "מומלץ" שלא אושר במפורש. ל-177 מק"טים (12.8 מיליון, 55%) אין שום החלטה בפרוטוקולים שנמסרו: 5.5 מיליון מהם נגבו לפי המחירון בלבד, ו-7.3 מיליון בלי שום מקור מחיר. במוצרים שהוועדה קבעה להם מחיר, הפערים קטנים: <b>44,124 ₪ נגבו מעל המחיר שנקבע ו-38,451 ₪ מתחתיו</b>. רוב העודף (31,250 ₪) הוא מחירי מודד מבקר ב-2024, שנראים כהצמדה למדד שהוועדה אישרה, ו-5,250 ₪ הם דמי טיפול שנגבו אחרי שבוטלו.','committee'],
+ ['2.86 מיליון ₪ פחות מהקבוע בתקנות: שעות עבודה נגבו בתעריף הישן','תיקון התשפ"ד העלה את האגרה ל-243 ₪ לשעה מ-1.9.2024. בספטמבר-דצמבר 2024 חויבו 370 שורות לפי 107 במק"ט הישן: נגבו 2.20 מיליון ₪ במקום 5.00 מיליון, כלומר <b>2.80 מיליון ₪ פחות</b>. גם בשלוש ההעלאות הקודמות (2022-2023) נגבה עוד כמה שבועות התעריף הישן: עוד 64 אלף ₪. בסך הכול <b>2,863,660 ₪ פחות מהקבוע בתקנות</b>. הלקוחות לא נפגעו, הם שילמו פחות מהמותר; מי שהפסיד הוא הקופה הציבורית. ייתכן שחלק מהעבודות הוזמנו לפני מועד השינוי, ולכן זה גבול עליון.',''],
  ['מוצרים בחינם תמורת קרדיט: עסקאות חליפין שלא נרשמו כמכירה','בפרוטוקול 19.1.2020 הוועדה אישרה לתת ללא תשלום מוצרים בשווי של עד 5,000 ₪ לפי המחירון, "בכפוף למתן קרדיט למרכז למיפוי ישראל", לסרטים, לתוכניות טלוויזיה, למוזיאונים ולתקשורת. החשבת, שרית ארד, אמרה שהיא מסכימה, בעקבות דיון אצל מנכ"ל מפ"י, "כי הצגת מוצרי מפ"י בסרט "אנטבה", בתוכניות טלוויזיה כמו "האח הגדול", "המרוץ למיליון" ועוד, הינו פרסום חינמי בהשוואה לפרסום שעולה הרבה כסף". לפרוטוקול צורפה טבלה של 18 עסקאות כאלה מ-2019 (סרטים, סדרות, "הארץ", כאן), ויו"ר הוועדה אמרה ש"כל הפניות שהגיעו לתחום דוברות לא עברו דרכי". זו עסקת חליפין: מוצר תמורת פרסום. בקובץ המכירות של 2022-2024 אין אף שורה כזאת (אין בו שורה בשווי 0), ולכן על פניו העסקאות האלה לא נרשמו כמכירה ולא דווחו.','barter'],
  ['מוצרי המדף הכפילו את עצמם ב-2024','מוצרי מדף מוכנים (קבצים ושכבות שכבר קיימים, מפות מהמלאי, גישה לתחנות הקבע) הכניסו 2.24 מיליון ₪ ב-2022, 2.82 מיליון ב-2023 ו-5.82 מיליון ב-2024. חלקם בהכנסות עלה מ-19% ל-35%. באותו זמן ההכנסות משירות ועבודה ירדו מ-4.75 מיליון ב-2023 ל-3.53 מיליון ב-2024.','monthly'],
- ['47% מההכנסות הן שעות עבודה לפי תקנות האגרות, וכמעט כולן תואמות','"שעת עבודה לפי תקנות המודדים" ומק"טים דומים הכניסו 20.6 מיליון ₪. 98.8% מהשורות הן כפולות של חצי שעה לפי התעריף בתקנות המדידות (אגרות), התשל"ז-1977: 96.24, 103.28 (10/2022), 104 (4/2023), 107 (10/2023). המעבר בנתונים קורה באותו חודש שבו ההודעה ברשומות נכנסת לתוקף.','hourly'],
- ['2.86 מיליון ₪ פחות מהקבוע בתקנות: שעות עבודה נגבו בתעריף הישן','תיקון התשפ"ד העלה את האגרה ל-243 ₪ לשעה מ-1.9.2024. בספטמבר-דצמבר 2024 חויבו 370 שורות לפי 107 במק"ט הישן: נגבו 2.20 מיליון ₪ במקום 5.00 מיליון, כלומר <b>2.80 מיליון ₪ פחות</b>. גם בשלוש ההעלאות הקודמות (2022-2023) נגבה עוד כמה שבועות התעריף הישן: עוד 64 אלף ₪. בסך הכול <b>2,863,660 ₪ פחות מהקבוע בתקנות</b>. הלקוחות לא נפגעו, הם שילמו פחות מהמותר; מי שהפסיד הוא הקופה הציבורית. ייתכן שחלק מהעבודות הוזמנו לפני מועד השינוי, ולכן זה גבול עליון.','hourly'],
+ ['47% מההכנסות הן שעות עבודה לפי תקנות האגרות, וכמעט כולן תואמות','"שעת עבודה לפי תקנות המודדים" ומק"טים דומים הכניסו 20.6 מיליון ₪. 98.8% מהשורות הן כפולות של חצי שעה לפי התעריף בתקנות המדידות (אגרות), התשל"ז-1977: 96.24, 103.28 (10/2022), 104 (4/2023), 107 (10/2023). המעבר בנתונים קורה באותו חודש שבו ההודעה ברשומות נכנסת לתוקף.',''],
  ['110 מק"טים (7.3 מיליון ₪) בלי אף מסמך שמסביר את המחיר','בהם שעות עובד לרמ"י (2.07 מיליון), מודל פוטוריאליסטי D3 (0.71 מיליון), קבלן משנה, הסכם רכישות שנתי, בנק דקות RTK, KTR ו-VRS, "שעת ייעוץ" לפי 141 ₪ (לא תעריף התקנות), זכויות יוצרים ותמלוגים, מפות גוש ותצ"ר ודמי משלוח.','none'],
  ['מחירים שעלו ב-2024 בלי החלטה בחומר שנמסר','תעודות עובד ציבור והגדלות תצ"א עלו ב-2024 בלי החלטה בחומר שנמסר. תעודת עובד ציבור לחיבור חשמל: 1500/600 עלו ל-1700/700. תעודת גבולות: 150 עלתה ל-500. הגדלות תצ"א: 340 עלתה ל-450. בשורות שאפשר לזהות, ההעלאות האלה הכניסו ב-2024 <b>כ-7,600 ₪ יותר</b> מהמחיר הקודם. רוב מכירות התצ"א עברו ב-2023-2024 למק"ט מאוחד ("מוצרי ארכיון תצ"א", 1.2 מיליון ₪ ב-2024), ובו אי אפשר לבודד את ההעלאה. פרוטוקול 3.5.23 מאשר "טבלת מחירי תצ"א" שלא צורפה.','pl'],
- ['החלטות שיושמו מיד','מודד מבקר (29.8.22), מפות סימון שבילים 84/1360 שירדו ל-65/1000 (14.11.22) וביטול דמי הטיפול (3.5.23). דמי הטיפול נגבו עוד 345 פעמים אחרי הביטול: <b>5,250 ₪ שלא היו אמורים להיגבות</b>. ב-2024 יש מכירות שבילים ב-42.25 וב-650, כלומר 35% הנחה בלי מקור. בסך הכול, מאז ההחלטה נגבו במפות השבילים <b>2,461 ₪ פחות</b> מהמחיר שנקבע (ו-714 ₪ יותר).','both'],
- ['אגרת בחינת מודדים תואמת את התקנות','103 ₪ ב-2022 ו-111 ₪ ב-2023-2024, בדיוק לפי תקנה 26(ג) לתקנות המודדים (מקצוע המדידה), התשמ"ב-1982.','reg'],
- ['פרוטוקול 7.6.20 חושף את מוצרי הגובה','המחירים של מוצרים (1), (2) ו-(4) זהים למחירון 2024: ענן נקודות, DSM ו-DTM. פרוטוקול 23.7.20 מגדיר את כל התשעה: (7) DSM ו-(8) DTM ברזולוציה 10 מטר, והוא ביטל את (7) ו-(9). DTM 10 מטר (מוצר 8) נמכר ב-2024 ב-235,200 ₪ בעסקה אחת, אבל לא מופיע במחירון.','pr'],
  ['70 מתוך 152 החלטות מחיר לא מופיעות בשום מכירה','למשל גזטיר ב-150,000 + 50,000 לשנה, שכבות מידע ימיות, התמרת קואורדינטות לאלביט ב-25,000 ורישיון ארגוני לשכונות. ל-10 מתוך 102 שורות מחירון אין מכירה.','protocols'],
 ];
-document.getElementById('findings').innerHTML=F.map(([h,p,go])=>`<article class="finding"><h3>${h}</h3><p>${p}</p>
-  <button class="go" data-f="${go}">${{barter:'לציטוט בפרוטוקול',committee:'לטבלת ועדת המחירים',monthly:'לגרף השנתי',hourly:'לגרף תעריף השעה',none:'למוצרים ללא קישור',pl:'למוצרים עם מחירון בלבד',both:'למוצרים עם מחירון ופרוטוקול',reg:'למוצרים לפי תקנות',pr:'לפרוטוקולים',protocols:'להחלטות שלא נמכרו'}[go]}</button></article>`).join('')+
+const HGT=()=>{const HG=DATA.HG||[];const s=k=>HG.reduce((a,r)=>a+r[k],0);
+  return `<div class="tablebox" style="box-shadow:none" tabindex="0" role="region" aria-label="פער בין התעריף שנגבה לתעריף בתקנות"><table><thead><tr><th>שינוי התעריף בתקנות</th><th>שורות בתעריף הקודם</th><th>נגבה ₪</th><th>היה צריך לגבות ₪</th><th>פער ₪</th></tr></thead><tbody>`+
+  HG.map(r=>`<tr style="cursor:default"><td>${esc(r.l)}</td><td class="num">${r.n}</td><td class="num">${nf0.format(r.c)}</td><td class="num">${nf0.format(r.w)}</td><td class="num"><span class="gap-under">−${money(r.d)}</span></td></tr>`).join('')+
+  `<tr style="cursor:default;font-weight:600"><td>סה"כ</td><td class="num">${s('n')}</td><td class="num">${nf0.format(s('c'))}</td><td class="num">${nf0.format(s('w'))}</td><td class="num"><span class="gap-under">−${money(s('d'))}</span></td></tr></tbody></table></div>`};
+document.getElementById('findings').innerHTML=F.map(([h,p,go],fi)=>`<article class="finding"><h3>${h}</h3><p>${p}</p>${fi===0?HGT():''}
+  ${go?`<button class="go" data-f="${go}">${{barter:'לציטוט בפרוטוקול',committee:'לטבלת ועדת המחירים',monthly:'לגרף השנתי',none:'למוצרים ללא קישור',pl:'למוצרים עם מחירון בלבד',both:'למוצרים עם מחירון ופרוטוקול',reg:'למוצרים לפי תקנות',pr:'לפרוטוקולים',protocols:'להחלטות שלא נמכרו'}[go]}</button>`:''}</article>`).join('')+
   `<p class="muted" style="font-size:12.5px">הקישור נעשה ידנית לפי שם ומחיר, וקישורים שמסומנים "משוער" צריכים אימות. אין בקובץ המכירות עמודת כמות, ולכן "מחיר" = סכום שורה. במוצרים לפי קמ"ר אי אפשר לבדוק את המחיר ליחידה. מקורות: קובץ המכירות שנמסר בחופש מידע, מחירוני 2024 ו-2025, 17 פרוטוקולים, ק"ת ונבו.</p>`;
 document.getElementById('findings').addEventListener('click',e=>{const b=e.target.closest('[data-f]');if(!b)return;const f=b.dataset.f;
-  if(f==='hourly')return showTab('hourly');
   if(f==='monthly')return showTab('monthly');
   if(f==='committee')return showTab('committee');
   if(f==='barter'){showTab('docs');const s=document.getElementById('sq');s.value='"האח הגדול"';runSearch();s.scrollIntoView({behavior:SMOOTH,block:'center'});return}
@@ -798,10 +748,10 @@ document.getElementById('findings').addEventListener('click',e=>{const b=e.targe
   const map={none:'ללא קישור',pl:'מחירון בלבד',both:'מחירון + פרוטוקול',reg:'תקנות בלבד'};setStatus(map[f]);});
 
 // init
-regTables(); renderProducts(); renderPL(); renderPR(); renderC();
+renderProducts(); renderPL(); renderPR(); renderC();
 const start=(location.hash||'').slice(1);
-showTab(['accessibility','privacy','findings','products','committee','pricelist','docs','protocols','hourly','monthly'].includes(start)?start:'findings');
-selectProduct(P[0].m);
+showTab(['accessibility','privacy','findings','products','committee','pricelist','docs','protocols','monthly'].includes(start)?start:'findings');
+
 </script>
 
 </body>
