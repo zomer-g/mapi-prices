@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="סמל האתר: כדור ארץ סדוק ועליו כובע ליצן">
+  <defs>
+    <clipPath id="lg-l"><path d="M0 0H33L30 26L35 33L29 40L34 48L30 64H0Z"/></clipPath>
+    <clipPath id="lg-r"><path d="M33 0H64V64H30L34 48L29 40L35 33L30 26Z"/></clipPath>
+    <g id="lg-globe">
+      <circle cx="32" cy="41" r="20" fill="#0068F5"/>
+      <path d="M17 34c5 1 8-2 12 0s3 6 8 5 6-5 11-3M15 45c6-2 9 2 14 1s7-4 13-3 6 3 8 2" fill="none" stroke="#7FD3A8" stroke-width="3" stroke-linecap="round"/>
+      <ellipse cx="32" cy="41" rx="8.5" ry="20" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1.3"/>
+      <path d="M12 41h40M15 31h34M15 51h34" stroke="#fff" stroke-opacity=".6" stroke-width="1.3"/>
+      <circle cx="32" cy="41" r="20" fill="none" stroke="#0B3668" stroke-width="2"/>
+    </g>
+  </defs>
+  <g clip-path="url(#lg-l)" transform="translate(-2.2 1.2) rotate(-5 32 41)"><use href="#lg-globe"/></g>
+  <g clip-path="url(#lg-r)" transform="translate(2 -0.4) rotate(4 32 41)"><use href="#lg-globe"/></g>
+  <path d="M33 21L30 26L35 33L29 40L34 48L30 62" fill="none" stroke="#FFFFFF" stroke-width="2.6" stroke-linejoin="round"/>
+  <path d="M33 21L30 26L35 33L29 40L34 48L30 62" fill="none" stroke="#0B3668" stroke-width="0.9" stroke-linejoin="round" stroke-dasharray="0"/>
+  <path d="M14 23C11 15 8 11 5 8C13 8 21 13 26 21Z" fill="#7B3FE4" stroke="#0B3668" stroke-width="1.1" stroke-linejoin="round"/>
+  <path d="M50 23C53 15 56 11 59 8C51 8 43 13 38 21Z" fill="#F5B400" stroke="#0B3668" stroke-width="1.1" stroke-linejoin="round"/>
+  <path d="M23 22C25 12 29 6 32 3C35 6 39 12 41 22Z" fill="#E0343C" stroke="#0B3668" stroke-width="1.1" stroke-linejoin="round"/>
+  <path d="M12 21.5C22 18 42 18 52 21.5L51 26.5C41 23 23 23 13 26.5Z" fill="#F5B400" stroke="#0B3668" stroke-width="1.2" stroke-linejoin="round"/>
+  <path d="M19 24l1.5 2M26 22.6l1 2.2M32 22.3v2.3M38 22.6l-1 2.2M45 24l-1.5 2" stroke="#0B3668" stroke-width="1"/>
+  <circle cx="5" cy="8" r="2.8" fill="#F5B400" stroke="#0B3668" stroke-width="1"/>
+  <circle cx="59" cy="8" r="2.8" fill="#7B3FE4" stroke="#0B3668" stroke-width="1"/>
+  <circle cx="32" cy="3.2" r="2.8" fill="#F5B400" stroke="#0B3668" stroke-width="1"/>
+</svg>
