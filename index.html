@@ -161,14 +161,19 @@ tbody tr.detailrow:hover{background:var(--surface2)}
 .tl .it{display:grid;grid-template-columns:62px minmax(0,1fr);gap:8px;padding:5px 12px;position:relative;align-items:start}
 .tl .it::before{content:"";position:absolute;inset-inline-start:-5px;top:11px;width:8px;height:8px;border-radius:50%;background:var(--bar)}
 .tl .it.ev{background:var(--surface);border-radius:6px;margin:3px 0 3px 6px;border-inline-start:3px solid var(--line)}
-.tl .it.ev.pr{border-color:var(--s-pr)} .tl .it.ev.pl{border-color:var(--s-pl)} .tl .it.ev.reg{border-color:var(--s-reg)}
-.tl .it.ev.pr::before{background:var(--s-pr)} .tl .it.ev.pl::before{background:var(--s-pl)} .tl .it.ev.reg::before{background:var(--s-reg)}
+.tl .it.ev.pr{border-color:var(--s-pr)} .tl .it.ev.pl,.tl .it.ev.pl25{border-color:var(--s-pl)} .tl .it.ev.reg{border-color:var(--s-reg)}
+.tl .it.ev.pr::before{background:var(--s-pr)} .tl .it.ev.pl::before,.tl .it.ev.pl25::before{background:var(--s-pl)} .tl .it.ev.reg::before{background:var(--s-reg)}
 .tl .when{font-family:var(--mono);font-size:12px;color:var(--muted);direction:ltr;text-align:right}
 .tl .kind{font-weight:700}
-.tl .sum{color:var(--muted);font-size:12px}
-.tl .chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:3px}
-.tl .sc{font-family:var(--mono);font-size:11.5px;background:var(--surface2);border:1px solid var(--line);border-radius:4px;padding:0 5px;direction:ltr}
-.tl .sc.hit{background:var(--s-both-bg);color:var(--s-both);border-color:var(--s-both)}
+.tl .sum{font-size:12.5px;margin-bottom:4px}
+.tl .it.seg{padding-block:8px}
+.tlt{border-collapse:collapse;font-size:12.5px;width:100%;max-width:520px}
+.tlt th{font-weight:500;color:var(--muted);text-align:start;padding:2px 6px;border-bottom:1px solid var(--line)}
+.tlt td{padding:2px 6px;border-bottom:1px solid var(--line)}
+.tg{display:inline-block;font-size:11.5px;padding:0 6px;border-radius:4px;white-space:nowrap}
+.tg.ok{background:var(--s-both-bg);color:var(--s-both)} .tg.early{background:var(--s-pl-bg);color:var(--s-pl)} .tg.old{background:var(--s-pr-bg);color:var(--s-pr)}
+.tg.off{background:var(--s-none-bg);color:var(--s-none)} .tg.none{background:var(--surface2);color:var(--muted)}
+.facts{margin:0;padding-inline-start:20px;display:grid;gap:4px;font-size:13px}
 .tl details summary{cursor:pointer;color:var(--muted);font-size:11.5px}
 .link{border-inline-start:3px solid var(--line);padding-inline-start:10px;display:grid;gap:3px;font-size:13px}
 .link.pl{border-color:var(--s-pl)} .link.pr{border-color:var(--s-pr)} .link.reg{border-color:var(--s-reg)}
@@ -531,7 +536,7 @@ function linkedPrices(p){
 function isHit(v,prices){return prices.some(c=>{const k=v/c;return Math.abs(k-Math.round(k))<0.005&&Math.round(k)>=1&&Math.round(k)<=200})}
 function closeDetail(){document.querySelectorAll('#ptable tr.detailrow').forEach(r=>r.remove());
   document.querySelectorAll('#ptable tr[data-m]').forEach(r=>{r.classList.remove('sel');const b=r.querySelector('.rowbtn');if(b)b.setAttribute('aria-expanded','false')});}
-// ---------- product timeline: committee decisions, price lists and every sale ----------
+// ---------- price timeline: when a price was set or published, and what was actually charged ----------
 const REG_RATES=[['2022-01-01',96.24,'תעריף שעה בתקנות בתחילת התקופה'],['2022-10-01',103.28,'העלאה ל-103.28 ₪ לשעה'],['2023-04-01',104,'העלאה ל-104 ₪ לשעה'],['2023-10-01',107,'העלאה ל-107 ₪ לשעה'],['2024-09-01',243,'תיקון התקנות: 243 ₪ לשעה']];
 function evDate(dt){
   if(/^\d{4}-\d{2}-\d{2}$/.test(dt))return [dt,false];
@@ -540,40 +545,110 @@ function evDate(dt){
   return [null,true];
 }
 const fdate=d=>{const [y,m,dd]=d.split('-');return `${+dd}.${+m}.${y}`};
-function timelineHTML(p){
-  const ev=[];
-  p.pr.forEach(i=>{const r=Ridx[i]; if(!r)return; const [d,approx]=evDate(r.dt); if(!d)return;
-    ev.push({d,cls:'pr',when:(approx?'~':'')+fdate(d),prices:r.pr!=null&&r.pr>0?[r.pr]:[],
-      html:`<span class="kind">ועדת מחירים</span> · ${esc(r.p||'')}${r.v?' | '+esc(r.v):''}${r.pr!=null?` = <span class="num">${fm(r.pr)}</span> ₪`:''}${r.prev!=null&&r.prev!==''?` <span class="muted">(קודם: ${esc(r.prev)})</span>`:''}${r.ty?` <span class="muted">· ${esc(r.ty)}</span>`:''}${approx?` <span class="muted">· תאריך משוער: ${esc(r.dt)}</span>`:''} ${plink(r.f)}`})});
-  [[L24idx,'2024-01-01','מחירון 2024',a=>a],[null,'2025-01-01','מחירון 2025',a=>L25by[a.id+'|'+a.v]]].forEach(([_,d,label,get])=>{
-    const items=p.pl.map(i=>L24idx[i]).filter(Boolean).map(get).filter(Boolean);
-    if(!items.length)return;
-    ev.push({d,cls:'pl',when:d.slice(0,4),prices:items.map(x=>x.pr).filter(v=>v>0),
-      html:`<span class="kind">${label}</span> <span class="muted">(תאריך מדויק לא צוין)</span><div>${items.map(x=>`${esc(x.p)}${x.v?' | '+esc(x.v):''} = <span class="num">${fm(x.pr)}</span> ₪`).join('<br>')}</div>`})});
-  if(p.pl.length&&!p.pl.some(i=>{const a=L24idx[i];return a&&L25by[i+'|'+a.v]}))
-    ev.push({d:'2025-01-01',cls:'pl',when:'2025',prices:[],html:'<span class="kind">מחירון 2025</span> · המוצר אינו מופיע'});
-  if(/שעת עבודה/.test(p.reg)) REG_RATES.forEach(([d,v,l])=>ev.push({d,cls:'reg',when:fdate(d),prices:[v/2],
-      html:`<span class="kind">תקנות</span> · ${esc(l)}${d==='2022-01-01'?` (<span class="num">${fm(v)}</span> ₪)`:''} <span class="muted">· חיוב ביחידות של חצי שעה</span>`}));
-  ev.sort((a,b)=>a.d.localeCompare(b.d));
-  // month buckets of sales
-  const months={}, sales=S[p.m]||[]; sales.forEach(([ym,a,n])=>(months[200000+ym]=months[200000+ym]||[]).push([a,n]));
+const d2ym=d=>+d.slice(0,4)*100+ +d.slice(5,7);
+const ym2s=ym=>`${String(ym%100).padStart(2,'0')}/${Math.floor(ym/100)}`;
+const mdiff=(a,b)=>(Math.floor(a/100)-Math.floor(b/100))*12+(a%100-b%100);
+const numPrev=v=>{if(v==null)return null;const s=String(v).replace(/,/g,'').trim();return /^\d+(\.\d+)?$/.test(s)?+s:null};
+const same=(a,v)=>Math.abs(a-v)<0.005;
+const isMult=(a,v)=>{const k=a/v;return Math.round(k)>=1&&Math.abs(k-Math.round(k))<0.005};
+const sumN=r=>r.reduce((s,x)=>s+x[2],0), sumT=r=>r.reduce((s,x)=>s+x[1]*x[2],0);
+const tag=(c,t)=>`<span class="tg ${c}">${t}</span>`;
+function priceStory(p){
+  const raw=S[p.m]||[];
   // self-check: the monthly sales must add up to the product's yearly totals
-  const ok=Object.entries(p.y).every(([y,[n,t]])=>{const r=sales.filter(x=>Math.floor(x[0]/100)===y-2000);
-    return r.reduce((s,x)=>s+x[2],0)===n&&Math.abs(r.reduce((s,x)=>s+x[1]*x[2],0)-t)<0.5});
-  if(!ok)Object.keys(months).forEach(k=>delete months[k]);
-  const items=[...ev.map(e=>({k:e.d.slice(0,7).replace('-','')*100,e})),...Object.keys(months).map(ym=>({k:ym*100+50,ym:+ym}))].sort((a,b)=>a.k-b.k);
-  const known=[]; let regNow=[], yr=null, out='';
-  items.forEach(x=>{
-    const y=String(Math.floor(x.k/10000)); if(y!==yr){yr=y; out+=`<div class="ty">${y}</div>`;}
-    if(x.e){if(x.e.cls==='reg')regNow=x.e.prices;else known.push(...x.e.prices); out+=`<div class="it ev ${x.e.cls}"><span class="when">${x.e.when}</span><div>${x.e.html}</div></div>`; return}
-    const rows=months[x.ym], n=rows.reduce((s,r)=>s+r[1],0), t=rows.reduce((s,r)=>s+r[0]*r[1],0);
-    const chip=([a,c])=>`<span class="sc ${known.concat(regNow).some(c=>{const k=a/c;return Math.round(k)>=1&&Math.abs(k-Math.round(k))<0.005})?'hit':''}">${fm(a)} ₪${c>1?' ×'+c:''}</span>`;
-    const shown=rows.slice(0,10), rest=rows.slice(10);
-    out+=`<div class="it"><span class="when">${String(x.ym%100).padStart(2,'0')}/${Math.floor(x.ym/100)}</span><div><span class="sum">${nf0.format(n)} ${n===1?'מכירה':'מכירות'} · ${nf0.format(t)} ₪</span>
-      <div class="chips">${shown.map(chip).join('')}</div>${rest.length?`<details><summary>ועוד ${rest.length} סכומים (${nf0.format(rest.reduce((s,r)=>s+r[1],0))} מכירות)</summary><div class="chips">${rest.map(chip).join('')}</div></details>`:''}</div></div>`;
+  const ok=Object.entries(p.y).every(([y,[n,t]])=>{const r=raw.filter(x=>Math.floor(x[0]/100)===y-2000);return sumN(r)===n&&Math.abs(sumT(r)-t)<0.5});
+  if(!ok)return '<div class="note">לא ניתן להציג את המכירות של המוצר: נתוני המכירות לא נטענו או שאינם תואמים לסיכומים.</div>';
+  const sales=raw.map(([ym,a,n])=>[200000+ym,a,n]);
+  // price points: committee decisions, price lists, regulation rates
+  const pts=[];
+  p.pr.forEach(i=>{const r=Ridx[i]; if(!r)return; const [d,approx]=evDate(r.dt); if(!d)return;
+    pts.push({src:'pr',d,ym:d2ym(d),approx,v:r.pr>0?r.pr:null,prev:numPrev(r.prev),ok:!/הצעה|דיון/.test(r.ty||''),r,label:[r.p,r.v].filter(Boolean).join(' | ')})});
+  const l24=p.pl.map(i=>L24idx[i]).filter(Boolean), l25=l24.map(a=>({a,b:L25by[a.id+'|'+a.v]}));
+  l24.forEach(a=>pts.push({src:'pl',d:'2024-01-01',ym:202401,v:a.pr>0?a.pr:null,ok:true,label:[a.p,a.v].filter(Boolean).join(' | ')}));
+  l25.forEach(({a,b})=>pts.push({src:'pl25',d:'2025-01-01',ym:202501,v:b&&b.pr>0?b.pr:null,ok:true,label:[a.p,a.v].filter(Boolean).join(' | ')+(b?'':' — לא מופיע')}));
+  const reg=/שעת עבודה/.test(p.reg);
+  if(reg)REG_RATES.forEach(([d,v,l])=>pts.push({src:'reg',d,ym:d2ym(d),v,ok:true,label:l}));
+  const PR=pts.filter(x=>x.src==='pr'&&x.ok&&x.v), PL=pts.filter(x=>x.src==='pl'&&x.v), RG=pts.filter(x=>x.src==='reg');
+  const v24=[...new Set(PL.map(x=>x.v))];
+  const first=Math.min(...sales.map(s=>s[0])), last=Math.max(...sales.map(s=>s[0]));
+  const at=v=>sales.filter(s=>same(s[1],v));
+  // ---- findings, in plain sentences ----
+  const L=[];
+  const setYm=[...PR.map(x=>x.ym),...(PL.length?[202401]:[]),...(RG.length?[RG[0].ym]:[])];
+  if(!setYm.length&&!p.reg)L.push(`לא נמצא מחיר שאושר בוועדה, פורסם במחירון או נקבע בתקנות. כל ${nf0.format(sumN(sales))} המכירות נעשו בלי מקור מחיר מתועד.`);
+  else if(setYm.length){const fs=Math.min(...setYm), b=sales.filter(s=>s[0]<fs);
+    if(b.length)L.push(`<b>${nf0.format(sumN(b))} מכירות (${nf0.format(sumT(b))} ₪)</b> נעשו בין ${ym2s(first)} ל-${ym2s(Math.max(...b.map(s=>s[0])))}, לפני שנקבע או פורסם מחיר כלשהו למוצר${first===202201?' (קובץ המכירות מתחיל ב-1/2022)':''}.`);}
+  const seen=new Set();
+  PR.forEach(x=>{const key=x.v+'|'+x.d; if(seen.has(key))return; seen.add(key);
+    const m=at(x.v), bef=m.filter(s=>s[0]<x.ym), head=`ועדה ${x.approx?'~':''}${fdate(x.d)}: נקבע <b>${fm(x.v)} ₪</b> (${esc(x.label)}).`;
+    if(!m.length)L.push(`${head} לא נמצאה אף מכירה בסכום הזה.`);
+    else{const f=Math.min(...m.map(s=>s[0]));
+      if(bef.length)L.push(`${head} <b>הסכום הזה נגבה כבר מ-${ym2s(f)}</b>: ${nf0.format(sumN(bef))} מכירות לפני ההחלטה.`);
+      else if(x.ym>=first){const dm=mdiff(f,x.ym);L.push(`${head} נגבה לראשונה ב-${ym2s(f)}${dm===0?', באותו חודש':dm===1?', חודש אחרי ההחלטה':`, ${dm} חודשים אחרי ההחלטה`}.`)}
+      else L.push(`${head} ${nf0.format(sumN(m))} מכירות בסכום הזה בקובץ.`);}
+    if(x.prev&&x.ym>=first){const pm=at(x.prev).filter(s=>s[0]>x.ym);
+      if(pm.length)L.push(`המחיר הקודם, <b>${fm(x.prev)} ₪</b>, המשיך להיגבות אחרי ההחלטה: ${nf0.format(sumN(pm))} מכירות, עד ${ym2s(Math.max(...pm.map(s=>s[0])))}.`);}
   });
-  if(!ok)out+='<div class="note">לא ניתן להציג את המכירות של המוצר: נתוני המכירות לא נטענו או שאינם תואמים לסיכומים.</div>';
-  return out;
+  if(v24.length){const s24=sales.filter(s=>s[0]>=202401), n24=sumN(s24), k=sumN(s24.filter(s=>v24.some(v=>isMult(s[1],v))));
+    let t=`מחירון 2024: <b>${v24.map(fm).join(', ')} ₪</b>. `;
+    if(n24){t+=`מתוך ${nf0.format(n24)} מכירות ב-2024, ${nf0.format(k)} (${Math.round(k/n24*100)}%) בסכום המחירון או בכפולה שלו`;
+      if(v24.length===1&&n24>k){const lo=sumN(s24.filter(s=>!isMult(s[1],v24[0])&&s[1]<v24[0])), hi=n24-k-lo;
+        t+=[lo&&`; ${nf0.format(lo)} בסכום נמוך יותר`,hi&&`; ${nf0.format(hi)} בסכום גבוה יותר שאינו כפולה`].filter(Boolean).join('');}
+      else if(n24>k)t+=`; ${nf0.format(n24-k)} בסכום אחר`;
+      t+='.';}else t+='לא היו מכירות ב-2024.';
+    const early=v24.map(v=>({v,m:at(v).filter(s=>s[0]<202401)})).filter(o=>o.m.length);
+    if(early.length)t+=` ${early.map(o=>`${fm(o.v)} ₪ נגבה כבר מ-${ym2s(Math.min(...o.m.map(s=>s[0])))}`).join('; ')}, לפני 2024.`;
+    L.push(t);
+    const ch=l25.filter(o=>o.b&&o.b.pr!==o.a.pr), gone=l25.filter(o=>!o.b).length;
+    L.push(ch.length?`מחירון 2025 שינה מחירים: ${ch.map(o=>`${fm(o.a.pr)} → ${fm(o.b.pr)} ₪`).join(', ')}.`:gone===l25.length?'המוצר לא מופיע במחירון 2025.':'במחירון 2025 המחירים לא השתנו.');}
+  if(RG.length)RG.forEach((x,i)=>{if(!i)return; const nx=RG[i+1], r=sales.filter(s=>s[0]>=x.ym&&(!nx||s[0]<nx.ym)), n=sumN(r); if(!n)return;
+    const k=sumN(r.filter(s=>isMult(s[1],x.v/2))), o=sumN(r.filter(s=>!isMult(s[1],x.v/2)&&isMult(s[1],RG[i-1].v/2)));
+    L.push(`תקנות ${fdate(x.d)}: ${x.label}. בחודשים שאחרי כן ${Math.round(k/n*100)}% מהמכירות לפי התעריף החדש ו-<b>${Math.round(o/n*100)}% עדיין לפי ${fm(RG[i-1].v)} ₪</b>.`)});
+  // ---- chronological list: events and sales periods ----
+  const cols=[PR.length&&'pr',PL.length&&'pl',RG.length&&'reg'].filter(Boolean);
+  const CN={pr:'מול ועדה',pl:'מול מחירון',reg:'מול תקנות'};
+  function st(c,a,ym){
+    if(c==='pr'){const inf=PR.filter(x=>x.ym<=ym);
+      if(inf.some(x=>isMult(a,x.v)))return tag('ok','תואם');
+      if(inf.some(x=>x.prev&&isMult(a,x.prev)))return tag('old','מחיר קודם');
+      if(PR.some(x=>x.ym>ym&&same(a,x.v)))return tag('early','לפני ההחלטה');
+      if(PR.some(x=>x.ym>ym&&x.prev&&isMult(a,x.prev)))return tag('none','המחיר שלפני ההחלטה');
+      if(!inf.length)return tag('none','טרם נקבע');
+      const vs=[...new Set(inf.map(x=>x.v))]; return vs.length===1?tag('off',a>vs[0]?`גבוה ב-${fm(a-vs[0])}`:`נמוך ב-${fm(vs[0]-a)}`):tag('off','לא תואם');}
+    if(c==='pl'){if(ym<202401)return v24.some(v=>same(a,v))?tag('early','כמו מחירון 2024'):'<span class="muted">—</span>';
+      if(v24.some(v=>isMult(a,v)))return tag('ok','תואם');
+      return v24.length===1?tag('off',a>v24[0]?`גבוה ב-${fm(a-v24[0])}`:`נמוך ב-${fm(v24[0]-a)}`):tag('off','לא תואם');}
+    const cur=RG.filter(x=>x.ym<=ym).pop();
+    if(cur&&isMult(a,cur.v/2))return tag('ok','תואם');
+    if(RG.some(x=>x!==cur&&x.ym<=ym&&isMult(a,x.v/2)))return tag('old','תעריף קודם');
+    return tag('off','לא תואם');}
+  const bounds=[...new Set([202201,202301,202401,...pts.filter(x=>x.ok&&x.ym>first&&x.ym<=last).map(x=>x.ym)])].sort((a,b)=>a-b);
+  const segOf=ym=>bounds.filter(b=>b<=ym).pop();
+  const segs={}; sales.forEach(s=>(segs[segOf(s[0])]=segs[segOf(s[0])]||[]).push(s));
+  const evs={}; pts.forEach(x=>{const k=x.src+'|'+x.d; (evs[k]=evs[k]||[]).push(x)});
+  const items=[...Object.values(evs).map(g=>({k:g[0].ym*100,g})),...Object.keys(segs).map(b=>({k:+b*100+50,b:+b}))].sort((a,b)=>a.k-b.k);
+  let yr=null, out='';
+  items.forEach(it=>{
+    const y=Math.floor(it.k/10000); if(y!==yr){yr=y; out+=`<div class="ty">${y}</div>`;}
+    if(it.g){const g=it.g, x=g[0];
+      const kind={pr:'ועדת מחירים',pl:'מחירון 2024',pl25:'מחירון 2025',reg:'תקנות'}[x.src];
+      const body=x.src==='pr'?g.map(z=>`${esc(z.label)}${z.v?` = <b class="num">${fm(z.v)}</b> ₪`:''}${z.prev?` <span class="muted">(קודם: ${fm(z.prev)})</span>`:''}${z.ok?'':` ${tag('none',esc(z.r.ty))}`} ${plink(z.r.f)}`).join('<br>')
+        :x.src.startsWith('pl')?g.map(z=>`${esc(z.label)}${z.v?` = <b class="num">${fm(z.v)}</b> ₪`:''}`).join('<br>')+' <span class="muted">(תאריך הפרסום המדויק לא צוין)</span>'
+        :`${esc(x.label)}${x.d==='2022-01-01'?` (<b class="num">${fm(x.v)}</b> ₪)`:''} <span class="muted">· חיוב ביחידות של חצי שעה</span>`;
+      out+=`<div class="it ev ${x.src}"><span class="when">${x.approx?'~':''}${x.src.startsWith('pl')?x.d.slice(0,4):fdate(x.d)}</span><div><span class="kind">${kind}</span><div>${body}</div></div></div>`; return}
+    const r=segs[it.b], ms=r.map(s=>s[0]), a=Math.min(...ms), z=Math.max(...ms), n=sumN(r);
+    const agg={}; r.forEach(([,v,c])=>agg[v]=(agg[v]||0)+c);
+    const rows=Object.entries(agg).map(([v,c])=>[+v,c]).sort((p,q)=>q[1]-p[1]);
+    const sc=cols.filter(c=>c!=='pl'||it.b>=202401||rows.some(([v])=>v24.some(w=>same(v,w))));
+    const share=sc.filter(c=>c!=='pl'||it.b>=202401).map(c=>{const k=rows.filter(([v])=>st(c,v,it.b).includes('tg ok')).reduce((s,x)=>s+x[1],0);return `${CN[c]}: ${Math.round(k/n*100)}% תואם`});
+    const tr=([v,c])=>`<tr><td class="num">${fm(v)}</td><td class="num">${nf0.format(c)}</td>${sc.map(cl=>`<td>${st(cl,v,it.b)}</td>`).join('')}</tr>`;
+    const th=`<tr><th>סכום ₪</th><th>מכירות</th>${sc.map(c=>`<th>${CN[c]}</th>`).join('')}</tr>`;
+    out+=`<div class="it seg"><span class="when">${a===z?ym2s(a):ym2s(a)+'<br>'+ym2s(z)}</span><div>
+      <div class="sum"><b>${nf0.format(n)} מכירות · ${nf0.format(sumT(r))} ₪</b>${share.length?' · '+share.join(' · '):''}</div>
+      <table class="tlt"><thead>${th}</thead><tbody>${rows.slice(0,8).map(tr).join('')}</tbody></table>
+      ${rows.length>8?`<details><summary>ועוד ${rows.length-8} סכומים (${nf0.format(rows.slice(8).reduce((s,x)=>s+x[1],0))} מכירות)</summary><table class="tlt"><thead>${th}</thead><tbody>${rows.slice(8).map(tr).join('')}</tbody></table></details>`:''}</div></div>`;
+  });
+  return `${L.length?`<ul class="facts">${L.map(t=>`<li>${t}</li>`).join('')}</ul>`:''}<div class="tl">${out}</div>`;
 }
 
 function selectProduct(m,forceOpen){
@@ -607,9 +682,9 @@ function selectProduct(m,forceOpen){
       return (a||b)?`<div class="note"><b>פער כספי:</b> ${a?a+' (מול '+(c.s==='נקבע בתקנות'?'התקנות':'החלטת הוועדה')+')':''}${a&&b?'<br>':''}${b?b.replace(/המחיר שנקבע/g,'מחירון 2024')+' במכירות 2024':''}</div>`:''})()}
     ${p.note?`<div class="note"><b>הערה:</b> ${esc(p.note)}</div>`:''}
     <div style="display:grid;gap:8px"><h3>מסמכים מקושרים</h3>${links.length?links.join(''):'<div class="muted">לא נמצא מחירון, פרוטוקול או תקנה שמתייחסים למוצר הזה.</div>'}</div>
-    <div style="display:grid;gap:8px"><h3>ציר זמן: ועדה, מחירון ומכירות</h3>
-      <p class="muted" style="margin:0;font-size:12.5px">כל החלטה של ועדת המחירים, כל מחירון וכל מכירה של המק"ט, לפי סדר הזמן. בקובץ המכירות מופיע רק החודש, ולכן המכירות מקובצות לפי חודש ולפי סכום (170 ₪ ×12 = 12 מכירות של 170 ₪). ירוק = סכום ששווה למחיר שכבר נקבע עד אותו חודש, או לכפולה שלו (בתעריף התקנות: רק לתעריף שבתוקף באותו חודש).</p>
-      <div class="tl">${timelineHTML(p)}</div></div>
+    <div style="display:grid;gap:8px"><h3>לוח זמנים של המחיר: מתי נקבע, מה פורסם ומה נגבה</h3>
+      <p class="muted" style="margin:0;font-size:12.5px">החלטות ועדת המחירים, המחירונים והתקנות לפי סדר הזמן, ובין כל שני אירועים מה נגבה בפועל. בקובץ המכירות יש רק חודש, ולכן החלטה מאמצע חודש נחשבת בתוקף מתחילת אותו חודש. "תואם" = הסכום שווה למחיר שהיה בתוקף או לכפולה שלו; "לפני ההחלטה" = הסכום שווה למחיר שהוועדה קבעה רק מאוחר יותר; "מחיר קודם" = המחיר שההחלטה החליפה.</p>
+      ${priceStory(p)}</div>
     <div style="display:grid;gap:12px"><h3>סכומי שורות לפי שנה <span class="muted" style="font-weight:400">(ירוק = שווה למחיר מקושר או לכפולה שלו)</span></h3>${distHTML}</div>`;
 }
 
