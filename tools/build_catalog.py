@@ -21,7 +21,9 @@ import re
 from collections import defaultdict
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-TODAY_2026 = '2026-10-16'  # the date the 2026 price list was checked; shown next to its name
+TODAY_2026 = '2026-10-16'  # the date the price list on gov.il was last checked; shown next to its name
+# On 16.10.2026 the price list published on gov.il (links-shop/he/mehiron2025.pdf) was byte-identical
+# to docs/pricelist-2025.pdf, so the 2025 edition is marked as still current on that date.
 
 src = open(os.path.join(ROOT, 'data', 'base.js'), encoding='utf-8').read()
 D = json.loads(src[src.index('{'):src.rindex('}') + 1])
@@ -30,7 +32,7 @@ P, L24, L25, R = D['P'], D['L24'], D['L25'], D['R']
 # ---- price lists: one list of rows per edition ----
 EDITIONS = [
     {'y': 2024, 'label': 'מחירון 2024', 'date': '2024-01-01', 'doc': 'docs/pricelist-2024.pdf'},
-    {'y': 2025, 'label': 'מחירון 2025', 'date': '2025-01-01', 'doc': 'docs/pricelist-2025.pdf'},
+    {'y': 2025, 'label': 'מחירון 2025', 'date': '2025-01-01', 'doc': 'docs/pricelist-2025.pdf', 'checked': TODAY_2026},
 ]
 L24idx = {r['id']: r for r in L24}
 rows = []  # {ed, id, pg, p, v, pr, u, nt}
