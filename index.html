@@ -216,6 +216,9 @@ tbody tr.detailrow:hover{background:var(--surface2)}
 .logt td{font-size:13px} .logt td.dt{white-space:nowrap}
 .logt tbody tr{cursor:default}
 .only-sm{display:none}
+.combo caption{text-align:start;font-weight:600;padding:12px 12px 6px;font-size:15px}
+.combo tbody tr{cursor:pointer} .combo td{vertical-align:middle}
+.combo .yes{color:var(--s-both);font-weight:700} .combo .no{color:var(--muted)}
 .skus summary{cursor:pointer;color:var(--accent);font-size:13.5px}
 .skus ul{margin:6px 0 0;padding-inline-start:18px;font-size:13px;display:grid;gap:2px}
 .pdetail .kv{max-width:560px} #ptable .pdetail{max-width:none}
@@ -297,17 +300,28 @@ tbody tr.detailrow:hover{background:var(--surface2)}
 
 <section data-pane="products" hidden>
   <p class="lede" style="margin:0 0 12px">כל מוצר מרכז את כל המקומות שבהם הוא מופיע: המחירונים, החלטות ועדת המחירים והמכירות בפועל. לחיצה על מוצר פותחת לוג של כל ההופעות שלו לפי תאריך, עם הסכום בכל אחת.</p>
+  <div class="tablebox" style="margin-bottom:14px"><table class="combo" id="combo"><caption>איפה המוצרים מופיעים <span class="muted" style="font-weight:400">(לחיצה על שורה מסננת את הרשימה)</span></caption></table></div>
   <div class="controls">
     <input type="search" id="q" aria-label="חיפוש מוצר לפי שם או מק&quot;ט" placeholder="חיפוש לפי שם מוצר או מק&quot;ט">
-    <select id="src" aria-label="מקורות">
+    <select id="src" aria-label="איפה המוצר מופיע">
       <option value="">כל המוצרים</option>
       <option value="multi">מופיע ביותר ממקור אחד</option>
-      <option value="all3">במחירון, בוועדה ובמכירות</option>
-      <option value="pl">מופיע במחירון</option>
-      <option value="pr">מופיע בוועדת המחירים</option>
-      <option value="sale">נמכר</option>
-      <option value="nodoc">נמכר בלי מחירון, ועדה או תקנות</option>
-      <option value="unsold">לא נמכר (רק מחירון או ועדה)</option>
+      <optgroup label="לפי צירוף מקורות">
+        <option value="c111">מחירון + ועדה + מכירות</option>
+        <option value="c101">מחירון + מכירות, בלי ועדה</option>
+        <option value="c011">ועדה + מכירות, בלי מחירון</option>
+        <option value="c001">מכירות בלבד</option>
+        <option value="c110">מחירון + ועדה, לא נמכר</option>
+        <option value="c100">מחירון בלבד, לא נמכר</option>
+        <option value="c010">ועדה בלבד, לא נמכר</option>
+      </optgroup>
+      <optgroup label="מקור אחד">
+        <option value="pl">מופיע במחירון</option>
+        <option value="pr">מופיע בוועדת המחירים</option>
+        <option value="sale">נמכר</option>
+        <option value="unsold">לא נמכר</option>
+        <option value="nopr">במחירון בלי החלטת ועדה</option>
+      </optgroup>
     </select>
     <select id="cat" aria-label="קטגוריה"></select>
     <select id="sort" aria-label="מיון">
@@ -319,7 +333,7 @@ tbody tr.detailrow:hover{background:var(--surface2)}
   <div class="controls" id="barFilter" hidden></div>
   <div class="count" id="pcount" role="status" aria-live="polite" style="margin-bottom:8px"></div>
   <div class="tablebox"><table class="gtable">
-      <thead><tr><th>מוצר</th><th>מופיע ב</th><th class="hidden-sm">מחיר במחירון האחרון ₪</th><th class="hidden-sm">מכירות</th><th>הכנסות ₪</th></tr></thead>
+      <thead><tr><th>מוצר</th><th>מופיע ב</th><th class="hidden-sm">מחיר ₪</th><th class="hidden-sm">מכירות</th><th>הכנסות ₪</th></tr></thead>
       <tbody id="ptable"></tbody></table></div>
 </section>
 
@@ -503,6 +517,14 @@ G.forEach(g=>{
   const last=g.pl.filter(r=>r.ed===Math.max(...g.pl.map(x=>x.ed))&&r.pr>0).map(r=>r.pr);
   g.lastEd=g.pl.length?Math.max(...g.pl.map(x=>x.ed)):null;
   g.lastPr=last.length?[Math.min(...last),Math.max(...last)]:null;
+  g.combo='c'+(g.pl.length?1:0)+(g.pr.length?1:0)+(g.P.length?1:0);
+  g.plLines=g.lastEd?g.pl.filter(r=>r.ed===g.lastEd).length:0;
+  // committee price: the most recent decisions that set a price (proposals and discussions only if nothing else)
+  const dec=g.pr.map(i=>Ridx[i]).filter(r=>r&&r.pr>0).map(r=>({r,d:evDate(r.dt),ok:!/הצעה|דיון/.test(r.ty||'')}));
+  const use=dec.some(x=>x.ok)?dec.filter(x=>x.ok):dec; const lastD=use.reduce((m,x)=>x.d>m?x.d:m,'');
+  const cp=use.filter(x=>x.d===lastD).map(x=>x.r.pr);
+  g.prPr=cp.length?{v:[Math.min(...cp),Math.max(...cp)],d:lastD,ok:use===dec?dec.every(x=>x.ok):true}:null;
+  g.prOk=g.pr.filter(i=>Ridx[i]&&!/הצעה|דיון/.test(Ridx[i].ty||'')).length;
   g.hay=[g.name,g.cat,...g.P.map(p=>p.d+' '+p.m),...g.pl.map(r=>r.p+' '+r.v),...g.pr.map(i=>Ridx[i]?Ridx[i].p+' '+(Ridx[i].v||''):'')].join(' ').toLowerCase();
 });
 
@@ -516,7 +538,36 @@ const SRCF={
   pl:g=>g.pl.length>0, pr:g=>g.pr.length>0, sale:g=>g.P.length>0,
   nodoc:g=>g.P.length&&!g.pl.length&&!g.pr.length&&!g.P.some(p=>p.reg),
   unsold:g=>!g.P.length,
+  nopr:g=>g.pl.length&&!g.pr.length,
 };
+['c111','c101','c011','c001','c110','c100','c010'].forEach(c=>SRCF[c]=g=>g.combo===c);
+const rng=v=>v[0]===v[1]?fm(v[0]):`${fm(v[0])}–${fm(v[1])}`;
+function priceCell(g){
+  if(g.lastPr)return rng(g.lastPr)+(g.lastEd<LASTED?` <span class="muted">(${g.lastEd})</span>`:'');
+  if(g.prPr)return rng(g.prPr.v)+`<div class="sub">ועדה${g.prPr.d?', '+fdate(g.prPr.d):''}${g.prPr.ok?'':', הצעה'}</div>`;
+  const ty=[...new Set(g.pr.map(i=>Ridx[i]&&String(Ridx[i].ty||'').replace(/\s*[(-].*$/,'')).filter(Boolean))];
+  return ty.length?`<span class="muted" style="font-size:12.5px">${esc(ty.join(', '))}</span>`:'<span class="muted">—</span>';
+}
+// summary: how many products appear in each combination of sources
+(function(){
+  const C=[['c111','מחירון, ועדה ומכירות'],['c101','במחירון ונמכר, בלי החלטת ועדה'],['c011','בוועדה ונמכר, לא במחירון'],['c001','נמכר בלי מחירון ובלי ועדה'],
+    ['c110','במחירון ובוועדה, לא נמכר'],['c100','במחירון בלבד, לא נמכר'],['c010','בוועדה בלבד: לא במחירון ולא נמכר']];
+  const yes=b=>b==='1'?'<span class="yes" aria-label="כן">✓</span>':'<span class="no" aria-label="לא">—</span>';
+  const prices=gs=>{const v=gs.flatMap(g=>g.lastPr||(g.prPr?g.prPr.v:[]));return v.length?rng([Math.min(...v),Math.max(...v)]):'—'};
+  document.getElementById('combo').insertAdjacentHTML('beforeend',`<thead><tr><th>צירוף</th><th class="hidden-sm">מחירון</th><th class="hidden-sm">ועדה</th><th class="hidden-sm">מכירות</th><th>מוצרים</th>
+    <th class="hidden-sm">שורות במחירון</th><th class="hidden-sm">החלטות ועדה</th><th class="hidden-sm">טווח מחירים ₪</th><th>הכנסות ₪</th></tr></thead><tbody>`+
+    C.map(([c,l])=>{const gs=G.filter(g=>g.combo===c);if(!gs.length)return '';
+      const nd=new Set(gs.flatMap(g=>g.pr)).size, ok=new Set(gs.flatMap(g=>g.pr.filter(i=>Ridx[i]&&!/הצעה|דיון/.test(Ridx[i].ty||'')))).size;
+      return `<tr data-combo="${c}" tabindex="0"><td>${l}</td><td class="hidden-sm">${yes(c[1])}</td><td class="hidden-sm">${yes(c[2])}</td><td class="hidden-sm">${yes(c[3])}</td>
+      <td class="num"><b>${gs.length}</b>${c[1]==='0'&&c[2]==='1'?`<div class="sub">${gs.filter(g=>g.prPr).length} עם מחיר</div>`:''}</td>
+      <td class="num hidden-sm">${nf0.format(gs.reduce((a,g)=>a+g.plLines,0))||'—'}</td>
+      <td class="num hidden-sm">${nd?nd+(ok<nd?`<div class="sub">${nd-ok} הצעות / דיונים</div>`:''):'—'}</td>
+      <td class="num hidden-sm">${prices(gs)}</td><td class="num">${gs.some(g=>g.t)?nf0.format(gs.reduce((a,g)=>a+g.t,0)):'—'}</td></tr>`}).join('')+'</tbody>');
+  const go=tr=>{barFilter=null;q.value='';cat.value='';srcSel.value=tr.dataset.combo;renderProducts();document.getElementById('pcount').scrollIntoView({behavior:SMOOTH,block:'start'})};
+  const tb=document.getElementById('combo');
+  tb.addEventListener('click',e=>{const tr=e.target.closest('tr[data-combo]');if(tr)go(tr)});
+  tb.addEventListener('keydown',e=>{if(e.key!=='Enter'&&e.key!==' ')return;const tr=e.target.closest('tr[data-combo]');if(tr){e.preventDefault();go(tr)}});
+})();
 let barFilter=null; // {label, test} from the revenue bars above
 const barBox=document.getElementById('barFilter');
 function setBar(label,test){barFilter={label,test};q.value='';cat.value='';srcSel.value='';showTab('products');renderProducts();document.getElementById('pcount').scrollIntoView({behavior:SMOOTH,block:'start'})}
@@ -529,15 +580,16 @@ function renderProducts(){
   barBox.hidden=!barFilter;
   if(barFilter)barBox.innerHTML=`<span class="chip" aria-pressed="true">${esc(barFilter.label)}</span> <button type="button" class="chip">ניקוי הסינון ✕</button>`;
   let rows=G.filter(g=>(!barFilter||barFilter.test(g))&&sf(g)&&(!cc||g.cat===cc)&&(!qq||g.hay.includes(qq)));
-  rows.sort(so==='d'?(a,b)=>a.name.localeCompare(b.name,'he'):(a,b)=>b[so]-a[so]);
+  rows.sort(so==='d'?(a,b)=>a.name.localeCompare(b.name,'he'):(a,b)=>b[so]-a[so]||b.pl.length-a.pl.length||a.name.localeCompare(b.name,'he'));
   const tot=rows.reduce((a,g)=>a+g.t,0);
   document.getElementById('pcount').textContent=`${rows.length} מוצרים · ${nf0.format(tot)} ₪ · ${nf0.format(rows.reduce((a,g)=>a+g.n,0))} מכירות`;
   document.getElementById('ptable').innerHTML=rows.map(g=>`<tr data-g="${g.id}">
     <td><button type="button" class="rowbtn" aria-expanded="false">${esc(g.name)}</button>
-      <div class="sub">${[g.cat,g.P.length>1?`${g.P.length} מק"טים`:g.P.length?`מק"ט ${g.P[0].m}`:''].filter(Boolean).map(esc).join(' · ')}</div></td>
+      <div class="sub">${[g.cat,g.P.length>1?`${g.P.length} מק"טים`:g.P.length?`מק"ט ${g.P[0].m}`:'',
+        !g.P.length&&g.plLines?`${g.plLines} שורות במחירון ${g.lastEd}`:'',!g.P.length&&g.pr.length?(g.pr.length===1?'החלטת ועדה אחת':`${g.pr.length} החלטות ועדה`)+(g.prOk<g.pr.length?` (${g.pr.length-g.prOk} הצעות / דיונים)`:''):''].filter(Boolean).map(esc).join(' · ')}</div></td>
     <td><div class="srcs">${g.src.map(spill).join(' ')}</div></td>
-    <td class="num hidden-sm">${g.lastPr?(g.lastPr[0]===g.lastPr[1]?fm(g.lastPr[0]):`${fm(g.lastPr[0])}–${fm(g.lastPr[1])}`)+(g.lastEd<LASTED?` <span class="muted">(${g.lastEd})</span>`:''):'<span class="muted">—</span>'}</td>
-    <td class="num hidden-sm">${g.n?nf0.format(g.n):'<span class="muted">—</span>'}</td><td class="num">${g.t?nf0.format(g.t):'<span class="muted">—</span>'}</td></tr>`).join('')
+    <td class="num hidden-sm">${priceCell(g)}</td>
+    <td class="num hidden-sm">${g.n?nf0.format(g.n):'<span class="muted">—</span>'}</td><td class="num">${g.P.length?nf0.format(g.t):'<span class="muted">לא נמכר</span>'}</td></tr>`).join('')
     ||'<tr><td colspan="5" class="muted" style="cursor:default">לא נמצאו מוצרים. אפשר לנקות את החיפוש או הסינון.</td></tr>';
   if(selected&&document.querySelector(`#ptable tr[data-g="${selected}"]`))selectGroup(selected,true); else selected=null;
 }
