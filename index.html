@@ -23,6 +23,7 @@
   --s-none:#B3362B; --s-none-bg:#F8DEDA;
   --bar:#7D93B5;
   --k1:#2F5D9E; --k1-bg:#DCE6F4; --k2:#8C4F1E; --k2-bg:#F5E3D2; --k3:#1F6D56; --k3-bg:#D6EFE6; --k0:#B6C2D6; --onk:#FFFFFF;
+  --c-gov:#1D4FA8; --c-gov-bg:#DCE7FA; --c-pub:#7B3FA0; --c-pub-bg:#EEE1F6; --c-prv:#B0500F; --c-prv-bg:#FBE4D2; --c-unk:#5E6E85; --c-unk-bg:#E3E8F0;
   --govgrad:linear-gradient(93deg,#025FDB,#025FDB 35%,#0B3668);
   --display:"Rubik", "Segoe UI", Arial, sans-serif;
   --sans:"Rubik", "Segoe UI", Arial, sans-serif;
@@ -36,6 +37,7 @@
     --s-both:#7CCB98; --s-both-bg:#173A2A; --s-pl:#DDBF62; --s-pl-bg:#3A3217; --s-pr:#E6A45B; --s-pr-bg:#3D2A15;
     --s-reg:#8DBBF2; --s-reg-bg:#17325A; --s-none:#F1938A; --s-none-bg:#47211F; --bar:#5B7AA6; --onk:#071A31;
     --k1:#8AB0EA; --k1-bg:#18304F; --k2:#E3A36A; --k2-bg:#3D2A18; --k3:#6CCBA9; --k3-bg:#15382E; --k0:#3A4F6E;
+    --c-gov:#86B2FF; --c-gov-bg:#17325E; --c-pub:#D3A6F0; --c-pub-bg:#36214A; --c-prv:#F5A66B; --c-prv-bg:#46280F; --c-unk:#A5B8D2; --c-unk-bg:#26384F;
     --govgrad:linear-gradient(93deg,#0B4FB0,#0B4FB0 35%,#0A2A50);
   }
 }
@@ -46,6 +48,7 @@
   --s-both:#7CCB98; --s-both-bg:#173A2A; --s-pl:#DDBF62; --s-pl-bg:#3A3217; --s-pr:#E6A45B; --s-pr-bg:#3D2A15;
   --s-reg:#8DBBF2; --s-reg-bg:#17325A; --s-none:#F1938A; --s-none-bg:#47211F; --bar:#5B7AA6; --onk:#071A31;
   --k1:#8AB0EA; --k1-bg:#18304F; --k2:#E3A36A; --k2-bg:#3D2A18; --k3:#6CCBA9; --k3-bg:#15382E; --k0:#3A4F6E;
+    --c-gov:#86B2FF; --c-gov-bg:#17325E; --c-pub:#D3A6F0; --c-pub-bg:#36214A; --c-prv:#F5A66B; --c-prv-bg:#46280F; --c-unk:#A5B8D2; --c-unk-bg:#26384F;
   --govgrad:linear-gradient(93deg,#0B4FB0,#0B4FB0 35%,#0A2A50);
 }
 *{box-sizing:border-box}
@@ -133,6 +136,8 @@ td.r{text-align:left}
 .hit .sn{font-size:13.5px;line-height:1.6;white-space:pre-wrap}
 .hit mark{background:var(--s-pl-bg);color:var(--ink);border-radius:2px;padding:0 1px;font-weight:600}
 .ctable td{font-size:13px} .ctable td.dc{min-width:260px;max-width:460px}
+.ct-gov{color:var(--c-gov);background:var(--c-gov-bg)} .ct-pub{color:var(--c-pub);background:var(--c-pub-bg)} .ct-prv{color:var(--c-prv);background:var(--c-prv-bg)} .ct-unk{color:var(--c-unk);background:var(--c-unk-bg)}
+.lnk{background:none;border:0;padding:0;font:inherit;color:var(--accent);text-decoration:underline;cursor:pointer;text-align:start} .cbar{height:22px;border-radius:4px;min-width:3px} .cbars td{vertical-align:middle} .cbars .barcell{width:45%} .cdeals td{font-size:13.5px}
 .k1{color:var(--k1);background:var(--k1-bg)} .k2{color:var(--k2);background:var(--k2-bg)} .k3{color:var(--k3);background:var(--k3-bg)}
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
 .seg button{font:inherit;font-size:13px;border:0;background:var(--surface);color:var(--muted);padding:5px 14px;cursor:pointer}
@@ -295,6 +300,7 @@ tbody tr.detailrow:hover{background:var(--surface2)}
   <button role="tab" data-tab="products">מוצרים</button>
   <button role="tab" data-tab="findings">ממצאים</button>
   <button role="tab" data-tab="monthly">הכנסות לאורך זמן</button>
+  <button role="tab" data-tab="clients">לקוחות גדולים</button>
   <button role="tab" data-tab="docs">מסמכי מקור וחיפוש</button>
 </div></nav>
 
@@ -370,6 +376,26 @@ tbody tr.detailrow:hover{background:var(--surface2)}
   </div>
 </section>
 
+<section data-pane="clients" hidden>
+  <div class="card" style="display:grid;gap:14px">
+    <h2 style="margin:0">הלקוחות הגדולים של מפ"י: עסקאות מעל 100,000 ₪</h2>
+    <p class="muted" style="margin:0" id="clead"></p>
+    <div class="note" id="cmissing" hidden></div>
+    <div class="statusbar" style="box-shadow:none">
+      <div class="stack" id="cstack"></div>
+      <div class="legend" id="clegend"></div>
+    </div>
+    <div id="cfilter" hidden></div>
+    <h3 style="margin:4px 0 0">לפי לקוח</h3>
+    <div class="tablebox" tabindex="0" role="region" aria-label="הכנסות לפי לקוח"><table class="cbars" id="ctable"></table></div>
+    <h3 style="margin:4px 0 0">לפי שנה</h3>
+    <div class="tablebox" tabindex="0" role="region" aria-label="הכנסות מלקוחות גדולים לפי שנה וסוג גוף"><table id="cyear"></table></div>
+    <h3 style="margin:4px 0 0">כל העסקאות</h3>
+    <div class="tablebox" tabindex="0" role="region" aria-label="כל העסקאות מעל 100,000 ₪"><table class="cdeals" id="cdeals"></table></div>
+    <p class="muted" style="margin:0;font-size:13px">מקור: גיליון "מעל 100,000 ש&quot;ח" בקובץ המכירות, ודוח שמות הלקוחות לאותן עסקאות (<a href="docs/big-deals-clients.xlsx" download>הורדה</a>). הסיווג לסוג גוף נעשה על ידינו לפי שם הלקוח. UKHO, משרד ההידרוגרפיה של בריטניה, סווג כגוף ציבורי אחר כי הוא גוף ממשלתי זר; חברת החשמל היא חברה ממשלתית. "מפ"י - החלטות ממשלה" הוא חיוב פנימי של מפ"י עצמה על עבודות לפי החלטות ממשלה. לעסקה אחת (מסמך 22984139, מערך נתוני כתובות, 265,802 ₪) אין שם לקוח בדוח.</p>
+  </div>
+</section>
+
 <section data-pane="accessibility" hidden>
   <div class="card statement">
     <h2 style="margin:0">הצהרת נגישות</h2>
@@ -413,6 +439,7 @@ tbody tr.detailrow:hover{background:var(--surface2)}
 <script src="data/sales-4.js"></script>
 <script src="data/sales-5.js"></script>
 <script src="data/sales-6.js"></script>
+<script src="data/clients.js"></script>
 <script>
 const DATA = window.DATA;
 const S=window.SALES||{};
@@ -498,6 +525,12 @@ const Pby={}; P.forEach(p=>Pby[p.m]=p);
 const Ridx={}; R.forEach(x=>Ridx[x.id]=x);
 const GofM={}; G.forEach(g=>g.skus.forEach(m=>GofM[m]=g));
 const Gby={}; G.forEach(g=>Gby[g.id]=g);
+// sales over 100,000 ILS with the client name (data/clients.js)
+const CL=window.CLIENTS||{types:{},deals:[]}, CT=CL.types, CTORDER=['gov','pub','prv','unk'];
+const bigKey=(m,ym,a)=>m+'|'+ym+'|'+Math.round(a*100);
+const BIG={}; CL.deals.forEach(d=>{const k=bigKey(d.m,d.ym,d.a);(BIG[k]=BIG[k]||[]).push(d)});
+const cpill=t=>`<span class="pill ct-${t}">${esc(CT[t]||'')}</span>`;
+const cname=d=>d.cf||d.c||'לקוח לא צוין';
 const fdate=d=>{const [y,m,dd]=d.split('-');return `${+dd}.${+m}.${y}`};
 function evDate(dt){
   if(/^\d{4}-\d{2}-\d{2}$/.test(dt))return dt;
@@ -527,7 +560,8 @@ G.forEach(g=>{
   const cp=use.filter(x=>x.d===lastD).map(x=>x.r.pr);
   g.prPr=cp.length?{v:[Math.min(...cp),Math.max(...cp)],d:lastD,ok:use===dec?dec.every(x=>x.ok):true}:null;
   g.prOk=g.pr.filter(i=>Ridx[i]&&!/הצעה|דיון/.test(Ridx[i].ty||'')).length;
-  g.hay=[g.name,g.cat,...g.P.map(p=>p.d+' '+p.m),...g.pl.map(r=>r.p+' '+r.v),...g.pr.map(i=>Ridx[i]?Ridx[i].p+' '+(Ridx[i].v||''):'')].join(' ').toLowerCase();
+  g.big=CL.deals.filter(d=>g.skus.some(m=>+m===d.m));
+  g.hay=[g.name,g.cat,...g.big.map(d=>d.c+' '+d.cf),...g.P.map(p=>p.d+' '+p.m),...g.pl.map(r=>r.p+' '+r.v),...g.pr.map(i=>Ridx[i]?Ridx[i].p+' '+(Ridx[i].v||''):'')].join(' ').toLowerCase();
 });
 
 const q=document.getElementById('q'), cat=document.getElementById('cat'), srcSel=document.getElementById('src'), sort=document.getElementById('sort');
@@ -600,7 +634,7 @@ document.getElementById('ptable').addEventListener('click',e=>{if(e.target.close
 
 // sales: for each amount that is a real price of the product, when it was charged; the rest in one row
 function salesTracks(g){
-  const all=[]; g.skus.forEach(m=>(S[m]||[]).forEach(([ym,a,n])=>all.push({m,ym,a,n})));
+  const all=[]; g.skus.forEach(m=>(S[m]||[]).forEach(([ym,a,n])=>{n-=(BIG[bigKey(m,ym,a)]||[]).length;if(n>0)all.push({m,ym,a,n})})); // sales over 100,000 are listed one by one with the client
   const N=all.reduce((s,x)=>s+x.n,0); if(!N)return [];
   const byA=new Map(); all.forEach(x=>{const k=Math.round(x.a*100)/100;if(!byA.has(k))byA.set(k,[]);byA.get(k).push(x)});
   const amts=[...byA.entries()].map(([a,xs])=>({a,xs,n:xs.reduce((s,x)=>s+x.n,0)})).sort((x,y)=>y.n-x.n);
@@ -640,6 +674,9 @@ function productLog(g){
     L.push({src:'sale',key:d+'2',date:t.fr===t.to?ym2s(t.fr):`${ym2s(t.fr)}<span aria-hidden="true">–</span><span class="sr-only"> עד </span>${ym2s(t.to)}`,srcl:'מכירות',
       item:t.other?`סכומים אחרים (${t.k} סכומים שונים${g.regHour?', רובם כפולות של תעריף השעה':''})${nm?`<div class="sub">${nm}</div>`:''}`:(nm||'<span class="muted">מכירה</span>'),
       amt:t.other?(t.a[0]===t.a[1]?fm(t.a[0]):`${fm(t.a[0])}–${fm(t.a[1])}`):fm(t.a),unit:'',det:`${nf0.format(t.n)} מכירות`})});
+  g.big.forEach(d=>{const ds=`20${String(Math.floor(d.ym/100)).padStart(2,'0')}-${String(d.ym%100).padStart(2,'0')}-01`, nm=skuNames(g,[d.m]);
+    L.push({src:'sale',key:ds+'3'+d.doc,date:ym2s(d.ym),srcl:'מכירות',item:`${cpill(d.t)} <b>${esc(cname(d))}</b>${nm?`<div class="sub">${nm}</div>`:''}`,
+      amt:fm(d.a),unit:'',det:`עסקה אחת מעל 100,000 ₪ · מסמך <span class="num">${esc(d.doc)}</span>`})});
   L.sort((a,b)=>a.key<b.key?-1:a.key>b.key?1:0);
   return L;
 }
@@ -669,6 +706,7 @@ function selectGroup(id,forceOpen){
     ${g.P.length?`<div class="kv"><div><small>מכירות 2022-2024</small><b>${nf0.format(g.n)}</b></div><div><small>הכנסות ₪</small><b>${nf0.format(g.t)}</b></div><div><small>מחיר במחירון האחרון</small><b>${g.lastPr?(g.lastPr[0]===g.lastPr[1]?fm(g.lastPr[0]):fm(g.lastPr[0])+'–'+fm(g.lastPr[1])):'—'}</b></div></div>`:
       '<div class="note">המוצר לא מופיע בקובץ המכירות 2022-2024.</div>'}
     ${skus}
+    ${g.big.length?`<div class="note">${g.big.length===1?'עסקה אחת':`${g.big.length} עסקאות`} מעל 100,000 ₪, עם שם הלקוח: ${[...new Set(g.big.map(cname))].map(esc).join(', ')}.${g.big.length===1?' היא מופיעה בלוג בשורה משלה.':' הן מופיעות בלוג בנפרד, כל אחת בשורה משלה.'} <a href="#clients" data-open="clients">ללקוחות הגדולים</a></div>`:''}
     <div class="log">${logHTML(g)}</div></div></td>`;
   tr.after(d);
   d.querySelector('.log').addEventListener('click',e=>{const b=e.target.closest('[data-lf]');if(!b)return;logFilter=b.dataset.lf;d.querySelector('.log').innerHTML=logHTML(g)});
@@ -679,7 +717,7 @@ document.addEventListener('click',e=>{if(e.target.closest('a'))return;const b=e.
   const tr=document.querySelector(`#ptable tr[data-g="${g.id}"]`); if(tr){tr.scrollIntoView({block:'start',behavior:SMOOTH});const rb=tr.querySelector('.rowbtn');if(rb)rb.focus({preventScroll:true})}});
 
 // ---------- source documents ----------
-const DOCS=[{"p": "docs/protocol-2020-01-19.pdf", "f": "פרוטוקול ועדת מחירים מתאריך19 בינואר 2020.pdf", "d": "19.1.2020", "t": "מוצרים תמורת קרדיט; מחיר מינימום 400 ₪ לנתוני גבהים", "k": "pr", "n": "חתום ביד. כולל טבלת קרדיט ורשימת פונים", "s": 1167500}, {"p": "docs/protocol-2020-06-07-heights.pdf", "f": "פרוטוקול בנושא מחירי גבהים מ7 ביוני 2020.pdf", "d": "7.6.2020", "t": "מחירי מוצרי גובה, 9 מוצרים × 5 מדרגות שטח", "k": "pr", "n": "סרוק, העמודים מסובבים", "s": 464727}, {"p": "docs/protocol-2020-07-23-dtm-dsm.pdf", "f": "פרוטוקול ועדת מחירים-מוצרי dtm-dsm - 23 ביולי 2020.pdf", "d": "23.7.2020", "t": "מוצרי DTM-DSM: הגדרת 9 המוצרים, תיקון מוצר 6, ביטול 7 ו-9", "k": "pr", "n": "אושר במייל", "s": 503095}, {"p": "docs/protocol-2020-08-16-marine.pdf", "f": "מוצרי מיפוי ימי.pdf", "d": "16.8.2020", "t": "מחירי מוצרי מיפוי ימי (מחירים \"מומלצים\")", "k": "pr", "n": "סרוק", "s": 1410642}, {"p": "docs/protocol-2021-04-21-bathymetry.jpg", "f": "בתימטרי גזירת נתונים תמחור.jpg", "d": "21.4.2021", "t": "מיפוי ימי: גזירת נתונים (עמוד ראשון בלבד)", "k": "pr", "n": "תמונה של עמוד אחד, בלי החלטה", "s": 480085}, {"p": "docs/protocol-2021-12-20-drones.pdf", "f": "דמי מלוג שנתיים ושירותים חינם לחברות פילוט רחפנים.pdf", "d": "20.12.2021", "t": "מידע חינם לפיילוט הרחפנים; דמי מלוג לאיתוראן", "k": "pr", "n": "", "s": 434420}, {"p": "docs/protocol-2022-01-03-addresses.pdf", "f": "תמחור מאגר נקודות כתובות בסיס בתוספת שדה.pdf", "d": "3.1.2022", "t": "מאגר נקודות כתובת בסיסי + שדה BLDG_ID: 23,000 ₪", "k": "pr", "n": "", "s": 517054}, {"p": "docs/protocol-2022-03-13-neighbourhoods.pdf", "f": "תמחור מוצר שכונות ושכבת גולות לעיון והתייחסות.pdf", "d": "13.3.2022", "t": "מוצר שכונות 5,000/15,000 ₪; שכבת גבולות המדינה 5,000 ₪", "k": "pr", "n": "", "s": 465580}, {"p": "docs/protocol-2022-06-02-cartography.pdf", "f": "פרוטוקול תיקון מחירי קרטוגרפיה.pdf", "d": "2.6.2022", "t": "תיקון מחירי קרטוגרפיה, לתקופת ניסיון של שנה", "k": "pr", "n": "טבלת המחירים לא צורפה", "s": 860502}, {"p": "docs/request-2022-07-18-egypt-maps.pdf", "f": "פרוטוקול פטור מתשלום מפות גבול מצרים לעיון והתייחסות.pdf", "d": "18.7.2022", "t": "טופס בקשה לפטור מתשלום על מפות גבול מצרים", "k": "pr", "n": "טופס פנייה, לא פרוטוקול", "s": 400682}, {"p": "docs/protocol-2022-07-28-ortho1965.pdf", "f": "פרוטוקול קביעת מחיר אורטופוטו היסטורי והמשך שכבת גבול מצרים.pdf", "d": "ללא תאריך (כנראה 28.7.2022)", "t": "פטור למפות מצרים; אורתופוטו 1965; עמוד שקט 20,000; משטח מגנטי 10,000; תעודת זריחה 300", "k": "pr", "n": "", "s": 902150}, {"p": "docs/protocol-2022-08-29-surveyors.pdf", "f": "פרוטוקול עדכון תעריפי מודדים מבקרים ועמוד שקט חיהא לעיון והתייחסות.pdf", "d": "29.8.2022", "t": "מודד מבקר 950/1,100/1,600/2,100 והצמדה שנתית למדד; עמוד שקט", "k": "pr", "n": "", "s": 491804}, {"p": "docs/protocol-2022-11-14-conferences.pdf", "f": "פרוטוקול רכישת מפות בכנסים ושינוי מדיניות מידע לסטודנטים.pdf", "d": "14.11.2022", "t": "הנחת כנסים, סטודנטים, עמוד שקט 35,676, התמרת קואורדינטות 25,000, שכונות, שבילים 65/1,000", "k": "pr", "n": "", "s": 259474}, {"p": "docs/protocol-2023-rtk.pdf", "f": "פרוטוקול עלויות rtk וקול קורא מפיצים לעיון והתייחסות.pdf", "d": "ללא תאריך (כנראה 2-3/2023)", "t": "RTK 300 ₪ לחודש; קול קורא למפיצים; הנחה לנתיבי ישראל", "k": "pr", "n": "", "s": 276342}, {"p": "docs/protocol-2023-03-14-digital-maps.pdf", "f": "פרוטוקול תיקון מחיר קרטו מפיצים ארגונים לעיון והתייחסות.pdf", "d": "14.3.2023", "t": "מפות דיגיטליות למפיצים וארגונים (לא אושרו מחירים)", "k": "pr", "n": "", "s": 188026}, {"p": "docs/protocol-2023-05-03-aerial.pdf", "f": "פרוטוקול עדכון מחירי צילומי אויר 2023.pdf", "d": "3.5.2023", "t": "עדכון מחירי תצ\"א, ביטול דמי טיפול, הנחות, מפיצים", "k": "pr", "n": "טבלת המחירים לא צורפה", "s": 217546}, {"p": "docs/protocol-2024-04-08-gazetteer.pdf", "f": "פרוטוקול גזטיר 2024.pdf", "d": "8.4.2024", "t": "גזטיר הנדל\"ן: 150,000 ₪ ועוד 50,000 ₪ לשנה", "k": "pr", "n": "", "s": 164865}, {"p": "docs/sales-2022-2024.xlsx", "f": "חופש מידע מכירות לשליחה (6).xlsx", "d": "2022-2024", "t": "קובץ המכירות: 40,570 שורות מכירה + גיליון מכירות מעל 100,000 ₪", "k": "xl", "n": "כפי שנמסר", "s": 1577081}, {"p": "docs/revenue-2020-2021.xlsx", "f": "-2020-2021.xlsx", "d": "2020-2021", "t": "סיכום הכנסות חודשי, ללא פירוט מוצרים", "k": "xl", "n": "כפי שנמסר", "s": 9911}, {"p": "docs/analysis.xlsx", "f": "מכירות מפי - מוצרים מחירון פרוטוקולים.xlsx", "d": "2022-2024", "t": "הניתוח: מוצרים, קישורים, קביעת ועדת המחירים, סוגי מוצרים", "k": "xl", "n": "נוצר בניתוח הזה", "s": 1801773}, {"p": "docs/pricelist-2024.pdf", "f": "mehiron2024.pdf", "d": "2024", "t": "מחירון מפ\"י 2024", "k": "pl", "n": "53 עמודים", "s": 7797725}, {"p": "docs/pricelist-2025.pdf", "f": "mehiron2025.pdf", "d": "2025-2026", "t": "מחירון מפ\"י 2025", "k": "pl", "n": "52 עמודים. זה המחירון שמפורסם ב-gov.il גם ב-16.10.2026", "s": 7570983}];
+const DOCS=[{"p": "docs/protocol-2020-01-19.pdf", "f": "פרוטוקול ועדת מחירים מתאריך19 בינואר 2020.pdf", "d": "19.1.2020", "t": "מוצרים תמורת קרדיט; מחיר מינימום 400 ₪ לנתוני גבהים", "k": "pr", "n": "חתום ביד. כולל טבלת קרדיט ורשימת פונים", "s": 1167500}, {"p": "docs/protocol-2020-06-07-heights.pdf", "f": "פרוטוקול בנושא מחירי גבהים מ7 ביוני 2020.pdf", "d": "7.6.2020", "t": "מחירי מוצרי גובה, 9 מוצרים × 5 מדרגות שטח", "k": "pr", "n": "סרוק, העמודים מסובבים", "s": 464727}, {"p": "docs/protocol-2020-07-23-dtm-dsm.pdf", "f": "פרוטוקול ועדת מחירים-מוצרי dtm-dsm - 23 ביולי 2020.pdf", "d": "23.7.2020", "t": "מוצרי DTM-DSM: הגדרת 9 המוצרים, תיקון מוצר 6, ביטול 7 ו-9", "k": "pr", "n": "אושר במייל", "s": 503095}, {"p": "docs/protocol-2020-08-16-marine.pdf", "f": "מוצרי מיפוי ימי.pdf", "d": "16.8.2020", "t": "מחירי מוצרי מיפוי ימי (מחירים \"מומלצים\")", "k": "pr", "n": "סרוק", "s": 1410642}, {"p": "docs/protocol-2021-04-21-bathymetry.jpg", "f": "בתימטרי גזירת נתונים תמחור.jpg", "d": "21.4.2021", "t": "מיפוי ימי: גזירת נתונים (עמוד ראשון בלבד)", "k": "pr", "n": "תמונה של עמוד אחד, בלי החלטה", "s": 480085}, {"p": "docs/protocol-2021-12-20-drones.pdf", "f": "דמי מלוג שנתיים ושירותים חינם לחברות פילוט רחפנים.pdf", "d": "20.12.2021", "t": "מידע חינם לפיילוט הרחפנים; דמי מלוג לאיתוראן", "k": "pr", "n": "", "s": 434420}, {"p": "docs/protocol-2022-01-03-addresses.pdf", "f": "תמחור מאגר נקודות כתובות בסיס בתוספת שדה.pdf", "d": "3.1.2022", "t": "מאגר נקודות כתובת בסיסי + שדה BLDG_ID: 23,000 ₪", "k": "pr", "n": "", "s": 517054}, {"p": "docs/protocol-2022-03-13-neighbourhoods.pdf", "f": "תמחור מוצר שכונות ושכבת גולות לעיון והתייחסות.pdf", "d": "13.3.2022", "t": "מוצר שכונות 5,000/15,000 ₪; שכבת גבולות המדינה 5,000 ₪", "k": "pr", "n": "", "s": 465580}, {"p": "docs/protocol-2022-06-02-cartography.pdf", "f": "פרוטוקול תיקון מחירי קרטוגרפיה.pdf", "d": "2.6.2022", "t": "תיקון מחירי קרטוגרפיה, לתקופת ניסיון של שנה", "k": "pr", "n": "טבלת המחירים לא צורפה", "s": 860502}, {"p": "docs/request-2022-07-18-egypt-maps.pdf", "f": "פרוטוקול פטור מתשלום מפות גבול מצרים לעיון והתייחסות.pdf", "d": "18.7.2022", "t": "טופס בקשה לפטור מתשלום על מפות גבול מצרים", "k": "pr", "n": "טופס פנייה, לא פרוטוקול", "s": 400682}, {"p": "docs/protocol-2022-07-28-ortho1965.pdf", "f": "פרוטוקול קביעת מחיר אורטופוטו היסטורי והמשך שכבת גבול מצרים.pdf", "d": "ללא תאריך (כנראה 28.7.2022)", "t": "פטור למפות מצרים; אורתופוטו 1965; עמוד שקט 20,000; משטח מגנטי 10,000; תעודת זריחה 300", "k": "pr", "n": "", "s": 902150}, {"p": "docs/protocol-2022-08-29-surveyors.pdf", "f": "פרוטוקול עדכון תעריפי מודדים מבקרים ועמוד שקט חיהא לעיון והתייחסות.pdf", "d": "29.8.2022", "t": "מודד מבקר 950/1,100/1,600/2,100 והצמדה שנתית למדד; עמוד שקט", "k": "pr", "n": "", "s": 491804}, {"p": "docs/protocol-2022-11-14-conferences.pdf", "f": "פרוטוקול רכישת מפות בכנסים ושינוי מדיניות מידע לסטודנטים.pdf", "d": "14.11.2022", "t": "הנחת כנסים, סטודנטים, עמוד שקט 35,676, התמרת קואורדינטות 25,000, שכונות, שבילים 65/1,000", "k": "pr", "n": "", "s": 259474}, {"p": "docs/protocol-2023-rtk.pdf", "f": "פרוטוקול עלויות rtk וקול קורא מפיצים לעיון והתייחסות.pdf", "d": "ללא תאריך (כנראה 2-3/2023)", "t": "RTK 300 ₪ לחודש; קול קורא למפיצים; הנחה לנתיבי ישראל", "k": "pr", "n": "", "s": 276342}, {"p": "docs/protocol-2023-03-14-digital-maps.pdf", "f": "פרוטוקול תיקון מחיר קרטו מפיצים ארגונים לעיון והתייחסות.pdf", "d": "14.3.2023", "t": "מפות דיגיטליות למפיצים וארגונים (לא אושרו מחירים)", "k": "pr", "n": "", "s": 188026}, {"p": "docs/protocol-2023-05-03-aerial.pdf", "f": "פרוטוקול עדכון מחירי צילומי אויר 2023.pdf", "d": "3.5.2023", "t": "עדכון מחירי תצ\"א, ביטול דמי טיפול, הנחות, מפיצים", "k": "pr", "n": "טבלת המחירים לא צורפה", "s": 217546}, {"p": "docs/protocol-2024-04-08-gazetteer.pdf", "f": "פרוטוקול גזטיר 2024.pdf", "d": "8.4.2024", "t": "גזטיר הנדל\"ן: 150,000 ₪ ועוד 50,000 ₪ לשנה", "k": "pr", "n": "", "s": 164865}, {"p": "docs/sales-2022-2024.xlsx", "f": "חופש מידע מכירות לשליחה (6).xlsx", "d": "2022-2024", "t": "קובץ המכירות: 40,570 שורות מכירה + גיליון מכירות מעל 100,000 ₪", "k": "xl", "n": "כפי שנמסר", "s": 1577081}, {"p": "docs/big-deals-clients.xlsx", "f": "big-deals-clients.xlsx", "d": "2022-2024", "t": "שמות הלקוחות בעסקאות מעל 100,000 ₪ (33 מתוך 34 עסקאות)", "k": "xl", "n": "כפי שנמסר", "s": 11638}, {"p": "docs/revenue-2020-2021.xlsx", "f": "-2020-2021.xlsx", "d": "2020-2021", "t": "סיכום הכנסות חודשי, ללא פירוט מוצרים", "k": "xl", "n": "כפי שנמסר", "s": 9911}, {"p": "docs/analysis.xlsx", "f": "מכירות מפי - מוצרים מחירון פרוטוקולים.xlsx", "d": "2022-2024", "t": "הניתוח: מוצרים, קישורים, קביעת ועדת המחירים, סוגי מוצרים", "k": "xl", "n": "נוצר בניתוח הזה", "s": 1801773}, {"p": "docs/pricelist-2024.pdf", "f": "mehiron2024.pdf", "d": "2024", "t": "מחירון מפ\"י 2024", "k": "pl", "n": "53 עמודים", "s": 7797725}, {"p": "docs/pricelist-2025.pdf", "f": "mehiron2025.pdf", "d": "2025-2026", "t": "מחירון מפ\"י 2025", "k": "pl", "n": "52 עמודים. זה המחירון שמפורסם ב-gov.il גם ב-16.10.2026", "s": 7570983}];
 const byFile={}; R.forEach(r=>{byFile[r.f]=(byFile[r.f]||0)+1});
 const kb=n=>n>1048576?(n/1048576).toFixed(1)+' MB':Math.round(n/1024)+' KB';
 document.getElementById('dtbody').innerHTML=DOCS.map((d,i)=>`<tr style="cursor:default">
@@ -777,6 +815,54 @@ function setView(v){view=v;document.getElementById('vY').setAttribute('aria-pres
 document.getElementById('vY').onclick=()=>setView('Y');
 document.getElementById('vM').onclick=()=>setView('M');
 
+// ---------- big clients: sales over 100,000 ILS by client and client type ----------
+(function(){
+  const D=CL.deals; if(!D.length)return;
+  const sum=xs=>xs.reduce((a,d)=>a+d.a,0), BT=sum(D), pc=(v,t)=>(v/t*100).toFixed(v/t<0.1?1:0)+'%';
+  const types=CTORDER.filter(t=>D.some(d=>d.t===t));
+  const byC=new Map(); D.forEach(d=>{const k=d.c||'';if(!byC.has(k))byC.set(k,[]);byC.get(k).push(d)});
+  const clients=[...byC.values()].map(xs=>({c:xs[0].c,name:cname(xs[0]),t:xs[0].t,n:xs[0].n,xs,v:sum(xs)})).sort((a,b)=>b.v-a.v);
+  const named=clients.filter(c=>c.c).length;
+  document.getElementById('clead').innerHTML=`${D.length} עסקאות של יותר מ-100,000 ₪ בשנים 2022-2024, בסך <b class="num">${nf0.format(BT)}</b> ₪: ${pc(BT,TOTAL)} מכלל ההכנסות בקובץ המכירות, ב-${named} לקוחות. `+
+    types.filter(t=>t!=='unk').map(t=>{const v=sum(D.filter(d=>d.t===t));return `${CT[t]==='גוף ממשלתי'?'גופים ממשלתיים':CT[t]==='גוף ציבורי אחר'?'גופים ציבוריים אחרים':'גופים פרטיים'}: ${pc(v,BT)}`}).join(', ')+'. הצבע מבחין בין סוגי הגופים; לחיצה על סוג או על לקוח מסננת את רשימת העסקאות.';
+  const miss=D.filter(d=>!d.c), mb=document.getElementById('cmissing');
+  if(miss.length){mb.hidden=false;mb.innerHTML=`<b>זהות המשלם לא נמסרה ב${miss.length===1?'עסקה אחת':`-${miss.length} עסקאות`}:</b> `+miss.map(d=>`מסמך <span class="num">${esc(d.doc)}</span>, ${esc(d.d)} (מק"ט <span class="num">${d.m}</span>), ${ym2s(d.ym)}, <span class="num">${nf.format(d.a)}</span> ₪`).join('; ')+`. ${miss.length===1?'סכומה':'סכומן'} ${pc(sum(miss),BT)} מסכום העסקאות הגדולות. שאר ${D.length-miss.length} העסקאות בגיליון "מעל 100,000 ש&quot;ח" מופיעות בדוח עם שם הלקוח, ובקובץ המכירות אין עסקאות נוספות מעל 100,000 ₪.`}
+  let flt=null; // {label, test}
+  const stack=document.getElementById('cstack'), leg=document.getElementById('clegend');
+  types.forEach(t=>{const xs=D.filter(d=>d.t===t), v=sum(xs), p=v/BT*100, cs=new Set(xs.map(d=>d.c)).size;
+    const tip=`${CT[t]}: ${nf0.format(v)} ₪ (${p.toFixed(1)}%), ${xs.length} עסקאות${t==='unk'?'':`, ${cs} לקוחות`}`;
+    const b=document.createElement('button'); b.style.flex=`${p} 0 0`; b.style.background=`var(--c-${t})`; b.style.color='var(--onk)';
+    b.textContent=p>7?`${CT[t]} ${p.toFixed(0)}%`:''; b.title=tip; b.setAttribute('aria-label',tip); b.onclick=()=>setF(CT[t],d=>d.t===t); stack.appendChild(b);
+    const l=document.createElement('button'); l.innerHTML=`<i class="sw" style="background:var(--c-${t})"></i>${CT[t]} <span class="num muted">${nf0.format(v)} ₪ · ${xs.length}</span>`;
+    l.onclick=()=>setF(CT[t],d=>d.t===t); leg.appendChild(l);});
+  const max=clients[0].v;
+  document.getElementById('ctable').innerHTML=`<thead><tr><th>לקוח</th><th>סוג</th><th class="hidden-sm">עסקאות</th><th class="hidden-sm barcell"><span class="sr-only">גרף</span></th><th>סך ₪</th><th class="hidden-sm">מהעסקאות הגדולות</th></tr></thead><tbody>`+
+    clients.map((c,i)=>`<tr data-ci="${i}" tabindex="0"><td><b>${esc(c.name)}</b>${c.n?`<div class="sub">${esc(c.n)}</div>`:''}${c.c&&c.c!==c.name?`<div class="sub">בדוח: ${esc(c.c)}</div>`:''}</td>
+      <td>${cpill(c.t)}</td><td class="num hidden-sm">${c.xs.length}</td>
+      <td class="hidden-sm barcell"><div class="cbar" style="width:${(c.v/max*100).toFixed(1)}%;background:var(--c-${c.t})" aria-hidden="true"></div></td>
+      <td class="num">${nf0.format(c.v)}</td><td class="num hidden-sm">${pc(c.v,BT)}</td></tr>`).join('')+'</tbody>';
+  const ys=[...new Set(D.map(d=>2000+Math.floor(d.ym/100)))].sort();
+  const yv=(y,t)=>sum(D.filter(d=>2000+Math.floor(d.ym/100)===y&&(!t||d.t===t)));
+  document.getElementById('cyear').innerHTML=`<thead><tr><th>שנה</th>${types.map(t=>`<th>${cpill(t)}</th>`).join('')}<th>סה"כ ₪</th><th class="hidden-sm">עסקאות</th></tr></thead><tbody>`+
+    ys.map(y=>`<tr style="cursor:default"><td class="num"><b>${y}</b></td>${types.map(t=>{const v=yv(y,t);return `<td class="num">${v?nf0.format(v):'—'}${v?` <span class="muted">(${pc(v,yv(y))})</span>`:''}</td>`}).join('')}
+      <td class="num"><b>${nf0.format(yv(y))}</b></td><td class="num hidden-sm">${D.filter(d=>2000+Math.floor(d.ym/100)===y).length}</td></tr>`).join('')+'</tbody>';
+  const box=document.getElementById('cfilter');
+  function drawDeals(){
+    const xs=D.filter(d=>!flt||flt.test(d)).slice().sort((a,b)=>a.ym-b.ym||a.doc.localeCompare(b.doc));
+    box.hidden=!flt; if(flt)box.innerHTML=`<span class="chip" aria-pressed="true">${esc(flt.label)}</span> <button type="button" class="chip">ניקוי הסינון ✕</button> <span class="count">${xs.length} עסקאות · ${nf0.format(sum(xs))} ₪</span>`;
+    document.getElementById('cdeals').innerHTML=`<caption class="sr-only">עסקאות מעל 100,000 ₪</caption><thead><tr><th>חודש</th><th>לקוח</th><th>מוצר</th><th>סכום ₪</th><th class="hidden-sm">מסמך</th></tr></thead><tbody>`+
+      xs.map(d=>{const g=GofM[d.m];return `<tr style="cursor:default"><td class="num">${ym2s(d.ym)}</td><td>${cpill(d.t)} ${esc(cname(d))}</td>
+        <td>${g?`<button type="button" class="lnk" data-go="${d.m}">${esc(d.d)}</button>`:esc(d.d)}<div class="sub">מק"ט <span class="num">${d.m}</span></div></td>
+        <td class="num">${nf.format(d.a)}</td><td class="num hidden-sm">${esc(d.doc)}</td></tr>`}).join('')+'</tbody>';
+  }
+  function setF(label,test){flt={label,test};drawDeals();document.getElementById('cdeals').scrollIntoView({behavior:SMOOTH,block:'start'})}
+  box.addEventListener('click',e=>{if(e.target.closest('button')){flt=null;drawDeals()}});
+  const ct=document.getElementById('ctable'), pick=tr=>{const c=clients[+tr.dataset.ci];setF(`לקוח: ${c.name}`,d=>(d.c||'')===c.c)};
+  ct.addEventListener('click',e=>{const tr=e.target.closest('tr[data-ci]');if(tr)pick(tr)});
+  ct.addEventListener('keydown',e=>{if(e.key!=='Enter'&&e.key!==' ')return;const tr=e.target.closest('tr[data-ci]');if(tr){e.preventDefault();pick(tr)}});
+  drawDeals();
+})();
+
 // ---------- findings ----------
 // sources for the hourly fee in the Surveys (Fees) Regulations, 1977
 const REG_SRC=[['96.24','1.4.2019','הודעה, ק"ת התשע"ט, עמ\' 3583'],['103.28','1.10.2022','הודעה, ק"ת התשפ"ב, עמ\' 4107'],['104','1.4.2023','הודעה, ק"ת התשפ"ג, עמ\' 1126'],['107','1.10.2023','הודעה מס\' 2, ק"ת התשפ"ג, עמ\' 2478'],['243','1.9.2024','תקנות המדידות (אגרות) (תיקון), התשפ"ד-2024, ק"ת 11432, עמ\' 3396']];
@@ -808,7 +894,7 @@ document.getElementById('findings').addEventListener('click',e=>{const b=e.targe
 // init
 renderProducts();
 const start=(location.hash||'').slice(1);
-showTab(['accessibility','privacy','findings','products','docs','monthly'].includes(start)?start:'products');
+showTab(['accessibility','privacy','findings','products','docs','monthly','clients'].includes(start)?start:'products');
 
 </script>
 
